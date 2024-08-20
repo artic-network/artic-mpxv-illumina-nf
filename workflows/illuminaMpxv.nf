@@ -120,7 +120,7 @@ workflow mpxvIllumina {
       if ( params.squirrel_assembly_refs ) {
             refs_ch = channel.fromPath("${params.squirrel_assembly_refs}", checkIfExists:true)
       } else {
-            refs_ch = channel.fromPath("${projectDir}/test_data/empty.fa}", checkIfExists:true)
+            refs_ch = channel.fromPath("${projectDir}/test_data/empty.fa", checkIfExists:true)
       }
       squirrel(sequenceAnalysis.out.consensus, refs_ch)
 }
