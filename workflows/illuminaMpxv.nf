@@ -19,6 +19,8 @@ include { writeQCSummaryCSV } from '../modules/qc.nf'
 
 include { collateSamples }    from '../modules/upload.nf'
 
+include { squirrel } from '../modules/squirrel.nf'
+
 workflow prepareReferenceFiles {
     // Get reference fasta
     // if (params.ref) {
@@ -89,8 +91,6 @@ workflow sequenceAnalysis {
         annotateVariantsVCF(callConsensusFreebayes.out.variants.combine(ch_preparedRef).combine(ch_gff))
       }
 
-      alignConsensusToReference(callConsensusFreebayes.out.consensus.combine(ch_preparedRef))
-
       makeQCCSV(trimPrimerSequences.out.ptrim.join(callConsensusFreebayes.out.consensus, by: 0)
           .combine(ch_preparedRef)
 				  .combine(ch_bedFile)
@@ -106,6 +106,7 @@ workflow sequenceAnalysis {
 
     emit:
       qc_pass = collateSamples.out
+      consensus = callConsensusFreebayes.out.consensus
 }
 
 workflow mpxvIllumina {
@@ -115,6 +116,13 @@ workflow mpxvIllumina {
     main:
       prepareReferenceFiles()
       sequenceAnalysis(ch_filePairs, prepareReferenceFiles.out.reference, prepareReferenceFiles.out.bwaIndex, prepareReferenceFiles.out.bedfile, prepareReferenceFiles.out.gff)
+
+      if ( params.squirrel_assembly_refs ) {
+            refs_ch = channel.fromPath("${params.squirrel_assembly_refs}", checkIfExists:true)
+      } else {
+            refs_ch = channel.fromPath("${projectDir}/test_data/empty.fa}", checkIfExists:true)
+      }
+      squirrel(sequenceAnalysis.out.consensus, refs_ch)
 }
 
 

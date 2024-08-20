@@ -67,6 +67,54 @@
       },
       "required": ["outdir", "prefix"]
     },
+    "mpxv_options": {
+      "title": "Monkeypox virus Options",
+      "type": "object",
+      "description": "Options related to MPXV",
+      "default": "",
+      "properties": {
+        "clade": {
+          "type": "string",
+          "title": "Clade",
+          "description": "Specify whether the alignment is primarily for `cladei` or `cladeii`.",
+          "enum": [
+            "cladei",
+            "cladeii"
+          ],
+          "help_text": ""
+        },
+        "squirrel_threads": {
+          "type": "number",
+          "description": "Number of CPU threads to use per squirrel task.",
+          "help_text": "The total CPU resource used by the workflow is constrained by the executor configuration.",
+          "minimum": 1,
+          "default": 4
+        },
+        "run_phylo": {
+          "type": "boolean",
+          "default": false,
+          "title": "Run Phylo",
+          "description": "Run phylogenetic reconstruction pipeline",
+          "help_text": ""
+        },
+        "outgroups": {
+          "type": "string",
+          "title": "Outgroups",
+          "description": "Specify which MPXV outgroup(s) in the alignment to use in the phylogeny.",
+          "help_text": "These are used only by the phylogenetics module and will get pruned out from the final tree."
+        },
+        "squirrel_assembly_refs": {
+          "type": "string",
+          "format": "path",
+          "title": "Assembly References",
+          "description": "References to check for `calls to reference` against, used only by the sequence QC process.",
+          "help_text": ""
+        }
+      },
+      "required": ["clade"],
+      "fa_icon": "fas fa-address-card",
+      "help_text": ""
+    },
     "advanced_options": {
       "title": "Advanced Options",
       "type": "object",
@@ -143,6 +191,9 @@
     },
     {
       "$ref": "#/definitions/output"
+    },
+    {
+      "$ref": "#/definitions/mpxv_options"
     },
     {
       "$ref": "#/definitions/advanced_options"
