@@ -93,15 +93,17 @@
         "run_phylo": {
           "type": "boolean",
           "default": false,
+          "hidden": true,
           "title": "Run Phylo",
-          "description": "Run phylogenetic reconstruction pipeline",
-          "help_text": ""
+          "description": "Run phylogenetic reconstruction pipeline (feature in development)",
+          "help_text": "This feature is currently only supported squirrel-nf and squirrel"
         },
         "outgroups": {
           "type": "string",
           "title": "Outgroups",
+          "hidden": true,
           "description": "Specify which MPXV outgroup(s) in the alignment to use in the phylogeny.",
-          "help_text": "These are used only by the phylogenetics module and will get pruned out from the final tree."
+          "help_text": "These are required by the phylogenetics module and will get pruned out from the final tree."
         },
         "squirrel_assembly_refs": {
           "type": "string",

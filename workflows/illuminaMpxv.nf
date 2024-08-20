@@ -104,9 +104,11 @@ workflow sequenceAnalysis {
 
       collateSamples(callConsensusFreebayes.out.consensus.join(performHostFilter.out.fastqPairs))
 
+      callConsensusFreebayes.out.consensus.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.fa").set{ consensus }
+
     emit:
       qc_pass = collateSamples.out
-      consensus = callConsensusFreebayes.out.consensus
+      consensus = consensus
 }
 
 workflow mpxvIllumina {
