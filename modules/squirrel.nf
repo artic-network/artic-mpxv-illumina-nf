@@ -1,10 +1,10 @@
 process squirrelAlignmentAndQC {
-label "squirrel"
-    cpus params.squirrel_threads
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "squirrel/**", mode: 'copy', saveAs: {  fn -> fn.replace("squirrel/", "")}
+    label "process_low"
 
     container "docker.io/articnetworkorg/squirrel@sha256:f855d4c43063845de22fdebd9d0a0a4b51a034ed276980e17a01335d658d79f5"
+
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "squirrel/**", mode: 'copy', saveAs: {  fn -> fn.replace("squirrel/", "")}
 
     input:
         path fasta

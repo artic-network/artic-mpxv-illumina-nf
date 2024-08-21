@@ -77,18 +77,8 @@
           "type": "string",
           "title": "Clade",
           "description": "Specify whether the alignment is primarily for `cladei` or `cladeii`.",
-          "enum": [
-            "cladei",
-            "cladeii"
-          ],
+          "enum": ["cladei", "cladeii"],
           "help_text": ""
-        },
-        "squirrel_threads": {
-          "type": "number",
-          "description": "Number of CPU threads to use per squirrel task.",
-          "help_text": "The total CPU resource used by the workflow is constrained by the executor configuration.",
-          "minimum": 1,
-          "default": 4
         },
         "run_phylo": {
           "type": "boolean",
