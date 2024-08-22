@@ -61,3 +61,14 @@ process performHostFilter {
              samtools fastq -1 ${sampleName}_hostfiltered_R1.fastq.gz -2 ${sampleName}_hostfiltered_R2.fastq.gz -s ${sampleName}_singletons.fastq.gz -
         """
 }
+
+process publish {
+    publishDir "${params.outdir}/", mode: 'copy'
+    input:
+        path name
+    output:
+        path name
+    script:
+    """
+    """
+}
