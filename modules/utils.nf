@@ -27,14 +27,14 @@ process get_bed_ref {
         val scheme_name
         val scheme_version
     output:
-        path "scheme.bed", emit: bed
+        path "primer.bed", emit: bed
         path "reference.fasta", emit: ref
         path "reference.gff3", emit: gff
 
     """
-    cp ${scheme_name}/${scheme_version}/${scheme_name}.scheme.bed scheme.bed
-    cp ${scheme_name}/${scheme_version}/${scheme_name}.reference.fasta reference.fasta
-    cp ${scheme_name}/${scheme_version}/${scheme_name}.reference.gff3 reference.gff3
+    cp ${scheme_name}/${scheme_version}/primer.bed primer.bed
+    cp ${scheme_name}/${scheme_version}/reference.fasta reference.fasta
+    cp ${scheme_name}/${scheme_version}/reference.gff3 reference.gff3
     """
 }
 
