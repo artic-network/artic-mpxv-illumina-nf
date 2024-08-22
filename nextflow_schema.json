@@ -42,7 +42,7 @@
           "default": "yale-mpox/v1.0.1",
           "description": "Primer scheme version.",
           "help_text": "This is the version of the primer scheme to use.",
-          "enum": ["yale-mpox/v1.0.0", "yale-mpox/v1.0.1"]
+          "enum": ["yale-mpox/v1.0.0", "yale-mpox/v1.0.1", "itm-mpox/v1.0.0"]
         }
       }
     },
