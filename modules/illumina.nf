@@ -2,7 +2,7 @@ process performHostFilter {
 
     tag { sampleName }
 
-    label 'process_medium'
+    label 'process_low'
 
     container 'community.wave.seqera.io/library/hostile:1.1.0--15df70fea624a735'
 
@@ -26,7 +26,7 @@ process normalizeDepth {
 
     tag { sampleName }
 
-    label  'process_medium'
+    label  'process_low'
 
     container 'community.wave.seqera.io/library/bbmap:39.06--5b971f29ed092959'
 
@@ -155,7 +155,7 @@ process readMapping {
 
     tag { sampleName }
 
-    label 'process_medium'
+    label 'process_low'
 
     container 'community.wave.seqera.io/library/bwa_samtools:3938c84206f62975'
 
@@ -182,7 +182,7 @@ process trimPrimerSequences {
 
     tag { sampleName }
 
-    label 'process_medium'
+    label 'process_low'
 
     container 'community.wave.seqera.io/library/ivar_samtools:e656be3eda151c7e'
 
