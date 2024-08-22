@@ -3,6 +3,7 @@
 nextflow.enable.dsl = 2
 
 include { get_bed_ref }               from '../modules/utils.nf'
+include { publish }               from '../modules/utils.nf'
 include { normalizeDepth }            from '../modules/illumina.nf'
 include { performHostFilter }         from '../modules/illumina.nf'
 include { readTrimming }              from '../modules/illumina.nf'
@@ -90,6 +91,8 @@ workflow sequenceAnalysis {
       }
 
       alignConsensusToReference(callConsensusFreebayes.out.consensus.combine(ch_preparedRef))
+      alignConsensusToReference.out.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.aln.fa").set{ alignment }
+      publish(alignment)
 
       makeQCCSV(trimPrimerSequences.out.ptrim.join(callConsensusFreebayes.out.consensus, by: 0)
           .combine(ch_preparedRef)
@@ -106,6 +109,7 @@ workflow sequenceAnalysis {
 
     emit:
       qc_pass = collateSamples.out
+      alignment = alignment
 }
 
 workflow mpxvIllumina {
