@@ -83,3 +83,13 @@ A script to do some basic QC is provided in `bin/qc.py`. It measures the % of re
 
 #### Output
 A subdirectory for each process in the workflow is created in `--outdir`. A `nml_upload` subdirectory containing dehosted fastq files and consensus sequences is included. 
+
+### Problems and Solutions
+
+1. Error during `mpxvIllumina:prepareReferenceFiles:get_bed_ref` step
+  ```
+  httpx.HTTPError: Failed to download https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.tar. Ensure you are connected to the internet, or provide a valid path to a local index
+  ```
+
+  Currently human read removal is performed with hostile, which downloads an indexed human genome file on the fly. This is an internet problem.
+

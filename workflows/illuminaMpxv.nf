@@ -3,6 +3,7 @@
 nextflow.enable.dsl = 2
 
 include { get_bed_ref }               from '../modules/utils.nf'
+include { publish }                   from '../modules/utils.nf'
 include { normalizeDepth }            from '../modules/illumina.nf'
 include { performHostFilter }         from '../modules/illumina.nf'
 include { readTrimming }              from '../modules/illumina.nf'
@@ -114,6 +115,7 @@ workflow sequenceAnalysis {
 
     emit:
       qc_pass = collateSamples.out
+      alignment = squirrelAlignmentAndQC.out.alignment
 }
 
 workflow mpxvIllumina {

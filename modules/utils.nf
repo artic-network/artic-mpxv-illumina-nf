@@ -27,14 +27,14 @@ process get_bed_ref {
         val scheme_name
         val scheme_version
     output:
-        path "scheme.bed", emit: bed
+        path "primer.bed", emit: bed
         path "reference.fasta", emit: ref
         path "reference.gff3", emit: gff
 
     """
-    cp ${scheme_name}/${scheme_version}/${scheme_name}.scheme.bed scheme.bed
-    cp ${scheme_name}/${scheme_version}/${scheme_name}.reference.fasta reference.fasta
-    cp ${scheme_name}/${scheme_version}/${scheme_name}.reference.gff3 reference.gff3
+    cp ${scheme_name}/${scheme_version}/primer.bed primer.bed
+    cp ${scheme_name}/${scheme_version}/reference.fasta reference.fasta
+    cp ${scheme_name}/${scheme_version}/reference.gff3 reference.gff3
     """
 }
 
@@ -60,4 +60,15 @@ process performHostFilter {
         samtools sort -n ${sampleName}.viral_and_nonmapping_reads.bam | \
              samtools fastq -1 ${sampleName}_hostfiltered_R1.fastq.gz -2 ${sampleName}_hostfiltered_R2.fastq.gz -s ${sampleName}_singletons.fastq.gz -
         """
+}
+
+process publish {
+    publishDir "${params.outdir}/", mode: 'copy'
+    input:
+        path name
+    output:
+        path name
+    script:
+    """
+    """
 }

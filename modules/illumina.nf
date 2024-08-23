@@ -2,9 +2,9 @@ process performHostFilter {
 
     tag { sampleName }
 
-    label 'process_medium'
+    label 'process_low'
 
-    container 'biocontainers/hostile:1.1.0--pyhdfd78af_0'
+    container 'community.wave.seqera.io/library/hostile:1.1.0--15df70fea624a735'
 
     conda 'bioconda::hostile=1.1.0'
 
@@ -26,7 +26,7 @@ process normalizeDepth {
 
     tag { sampleName }
 
-    label  'process_medium'
+    label  'process_low'
 
     container 'community.wave.seqera.io/library/bbmap:39.06--5b971f29ed092959'
 
@@ -68,7 +68,7 @@ process readTrimming {
 
     label 'process_single'
 
-    container 'biocontainers/trim-galore:0.6.10--hdfd78af_0'
+    container 'community.wave.seqera.io/library/trim-galore:0.6.10--e1d78c153f940cdf'
 
     conda 'bioconda::trim-galore=0.6.10'
 
@@ -102,7 +102,7 @@ process filterResidualAdapters {
 
     label 'process_single'
 
-    container 'biocontainers/pysam:0.22.1--py39h61809e1_2'
+    container 'community.wave.seqera.io/library/pysam:0.22.1--6e6607269e942cf3'
 
     conda 'bioconda::pysam=0.22.1'
 
@@ -155,7 +155,7 @@ process readMapping {
 
     tag { sampleName }
 
-    label 'process_medium'
+    label 'process_low'
 
     container 'community.wave.seqera.io/library/bwa_samtools:3938c84206f62975'
 
@@ -182,7 +182,7 @@ process trimPrimerSequences {
 
     tag { sampleName }
 
-    label 'process_medium'
+    label 'process_low'
 
     container 'community.wave.seqera.io/library/ivar_samtools:e656be3eda151c7e'
 
@@ -283,7 +283,7 @@ process alignConsensusToReference {
 
     label 'process_single'
 
-    container 'biocontainers/mafft:7.525--h031d066_0'
+    container 'community.wave.seqera.io/library/mafft:7.526--dbad4ff150905890'
 
     conda 'bioconda::mafft=7.525'
 

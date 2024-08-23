@@ -136,6 +136,9 @@ def read_primers(
     primers_by_name = {}
     with open(primer_bed_path, "r") as f:
         for line in f:
+            if line.startswith("#"):
+                continue
+            
             fields = line.strip().split("\t")
             start = int(fields[1])
             end = int(fields[2])
