@@ -2,7 +2,7 @@ process squirrelAlignmentAndQC {
 
     label "process_low"
 
-    container "docker.io/articnetworkorg/squirrel@sha256:f855d4c43063845de22fdebd9d0a0a4b51a034ed276980e17a01335d658d79f5"
+    container "docker.io/articnetworkorg/squirrel@sha256:f15badf9d3e8e47f3106bdfeafe40991a4b7ca6408c719d9bec66222c11054a0"
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "squirrel/**", mode: 'copy', saveAs: {  fn -> fn.replace("squirrel/", "")}
 

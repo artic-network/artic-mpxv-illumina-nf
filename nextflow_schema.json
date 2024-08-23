@@ -77,7 +77,7 @@
           "type": "string",
           "title": "Clade",
           "description": "Specify whether the alignment is primarily for `cladei` or `cladeii`.",
-          "enum": ["cladei", "cladeii"],
+          "enum": ["cladei", "cladeia", "cladeib", "cladeii", "cladeiia", "cladeiib"],
           "help_text": ""
         },
         "run_phylo": {
