@@ -2,21 +2,22 @@
 
 nextflow.enable.dsl = 2
 
-include { get_bed_ref }               from '../modules/utils.nf'
-include { publish }                   from '../modules/utils.nf'
-include { normalizeDepth }            from '../modules/illumina.nf'
-include { performHostFilter }         from '../modules/illumina.nf'
-include { readTrimming }              from '../modules/illumina.nf'
-include { filterResidualAdapters }    from '../modules/illumina.nf'
-include { indexReference}             from '../modules/illumina.nf'
-include { readMapping }               from '../modules/illumina.nf'
-include { trimPrimerSequences }       from '../modules/illumina.nf'
-include { callConsensusFreebayes }    from '../modules/illumina.nf'
-include { annotateVariantsVCF }       from '../modules/illumina.nf'
-include { alignConsensusToReference } from '../modules/illumina.nf'
+include { get_bed_ref }                from '../modules/utils.nf'
+include { publish as publishConsensus} from '../modules/utils.nf'
+include { publish as publishQCCSV}     from '../modules/utils.nf'
+include { normalizeDepth }             from '../modules/illumina.nf'
+include { performHostFilter }          from '../modules/illumina.nf'
+include { readTrimming }               from '../modules/illumina.nf'
+include { filterResidualAdapters }     from '../modules/illumina.nf'
+include { indexReference}              from '../modules/illumina.nf'
+include { readMapping }                from '../modules/illumina.nf'
+include { trimPrimerSequences }        from '../modules/illumina.nf'
+include { callConsensusFreebayes }     from '../modules/illumina.nf'
+include { annotateVariantsVCF }        from '../modules/illumina.nf'
+include { alignConsensusToReference }  from '../modules/illumina.nf'
 
 include { makeQCCSV }         from '../modules/qc.nf'
-include { writeQCSummaryCSV } from '../modules/qc.nf'
+// include { writeQCSummaryCSV } from '../modules/qc.nf'
 
 include { collateSamples }    from '../modules/upload.nf'
 
@@ -92,18 +93,18 @@ workflow sequenceAnalysis {
 
       alignConsensusToReference(callConsensusFreebayes.out.consensus.combine(ch_preparedRef))
       alignConsensusToReference.out.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.aln.fa").set{ alignment }
-      publish(alignment)
+
+      publishConsensus(alignment)
 
       makeQCCSV(trimPrimerSequences.out.ptrim.join(callConsensusFreebayes.out.consensus, by: 0)
           .combine(ch_preparedRef)
 				  .combine(ch_bedFile)
           )
 
-      makeQCCSV.out.csv.splitCsv()
-                       .unique()
-                       .set { qc }
-
-      writeQCSummaryCSV(qc.toList())
+      makeQCCSV.out.csv
+          .collectFile(name: "${params.prefix}.qc.csv", skip: 1, keepHeader: true).set { qc }
+      
+      publishQCCSV(qc)
 
       collateSamples(callConsensusFreebayes.out.consensus.join(performHostFilter.out.fastqPairs))
 
