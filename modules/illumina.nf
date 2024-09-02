@@ -8,7 +8,7 @@ process performHostFilter {
 
     conda 'bioconda::hostile=1.1.0'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}_hostfiltered_R*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.clean_*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse)
@@ -18,6 +18,7 @@ process performHostFilter {
 
     script:
     """
+    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
     hostile clean --fastq1 ${forward} --fastq2 ${reverse} --out-dir . --threads ${task.cpus}
     """
 }
