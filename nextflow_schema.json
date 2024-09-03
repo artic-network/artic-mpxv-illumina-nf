@@ -124,6 +124,12 @@
           "title": "Variant caller minimum depth",
           "default": 10,
           "description": "Minimum coverage depth to call variant"
+        },
+        "skip_normalize_depth": {
+          "type": "boolean",
+          "title": "Skip depth normalization",
+          "default": false,
+          "description": "Skip depth normalization, this will make the pipeline slower."
         }
       }
     },

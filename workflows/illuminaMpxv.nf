@@ -69,13 +69,13 @@ workflow sequenceAnalysis {
 
     main:
 
-      // if (!params.skip_normalize_depth) {
-      //   ch_reads_to_hostfilter = normalizeDepth(ch_filePairs)
-      // } else {
-      //   ch_reads_to_hostfilter = ch_filePairs
-      // }
+      if (!params.skip_normalize_depth) {
+        ch_reads_to_hostfilter = normalizeDepth(ch_filePairs)
+      } else {
+        ch_reads_to_hostfilter = ch_filePairs
+      }
 
-      performHostFilter(ch_filePairs)
+      performHostFilter(ch_reads_to_hostfilter)
 
       readTrimming(performHostFilter.out.fastqPairs)
 

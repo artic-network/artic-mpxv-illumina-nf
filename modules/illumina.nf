@@ -29,9 +29,9 @@ process normalizeDepth {
 
     label  'process_low'
 
-    container 'community.wave.seqera.io/library/bbmap:39.06--5b971f29ed092959'
+    container 'docker.io/bryce911/bbtools:39.08'
 
-    conda 'bioconda::bbmap=39.06'
+    conda 'bioconda::bbmap=39.08'
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_norm_R{1,2}.fq.gz', mode: 'copy'
 
@@ -270,7 +270,7 @@ process callConsensusFreebayes {
     CTG_NAME=\$(head -n1 ${ref} | sed 's/>//')
 
     # apply remaninng variants, including indels
-    bcftools consensus -f ${sampleName}.ambiguous.fa -m ${sampleName}.mask.txt ${sampleName}.fixed.norm.vcf.gz | sed s/\$CTG_NAME/${sampleName}/ > ${sampleName}.consensus.fa
+    bcftools consensus -s - -f ${sampleName}.ambiguous.fa -m ${sampleName}.mask.txt ${sampleName}.fixed.norm.vcf.gz | sed s/\$CTG_NAME/${sampleName}/ > ${sampleName}.consensus.fa
     """
 }
 
