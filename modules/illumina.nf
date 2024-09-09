@@ -8,7 +8,7 @@ process performHostFilter {
 
     conda 'bioconda::hostile=1.1.0'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}_hostfiltered_R*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.clean_*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse)
@@ -18,6 +18,7 @@ process performHostFilter {
 
     script:
     """
+    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
     hostile clean --fastq1 ${forward} --fastq2 ${reverse} --out-dir . --threads ${task.cpus}
     """
 }
@@ -28,9 +29,9 @@ process normalizeDepth {
 
     label  'process_low'
 
-    container 'community.wave.seqera.io/library/bbmap:39.06--5b971f29ed092959'
+    container 'docker.io/bryce911/bbtools:39.08'
 
-    conda 'bioconda::bbmap=39.06'
+    conda 'bioconda::bbmap=39.08'
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_norm_R{1,2}.fq.gz', mode: 'copy'
 
@@ -263,13 +264,13 @@ process callConsensusFreebayes {
     done
 
     # apply ambiguous variants first using IUPAC codes. this variant set cannot contain indels or the subsequent step will break
-    bcftools consensus -f ${ref} -I ${sampleName}.ambiguous.norm.vcf.gz > ${sampleName}.ambiguous.fa
+    bcftools consensus -s - -f ${ref} -I ${sampleName}.ambiguous.norm.vcf.gz > ${sampleName}.ambiguous.fa
 
     # Get viral contig name from reference
     CTG_NAME=\$(head -n1 ${ref} | sed 's/>//')
 
     # apply remaninng variants, including indels
-    bcftools consensus -f ${sampleName}.ambiguous.fa -m ${sampleName}.mask.txt ${sampleName}.fixed.norm.vcf.gz | sed s/\$CTG_NAME/${sampleName}/ > ${sampleName}.consensus.fa
+    bcftools consensus -s - -f ${sampleName}.ambiguous.fa -m ${sampleName}.mask.txt ${sampleName}.fixed.norm.vcf.gz | sed s/\$CTG_NAME/${sampleName}/ > ${sampleName}.consensus.fa
     """
 }
 
