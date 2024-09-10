@@ -26,7 +26,7 @@ process squirrelAlignmentAndQC {
         extra += " --outgroups ${params.outgroups}"
 
     """
-    XDG_CACHE_HOME=\$PWD/.cache
+    export XDG_CACHE_HOME=\$PWD/.cache
     squirrel --version 2>&1 | sed 's/: /,/' > squirrel.version
     squirrel ${fasta} --no-mask --seq-qc -o squirrel --outfile all_consensus.aln.fasta --tempdir squirrel_tmp -t ${task.cpus} ${extra}
     """
