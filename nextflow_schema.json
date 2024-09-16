@@ -91,6 +91,12 @@
       "description": "Advanced options for configuring processes inside the workflow.",
       "help_text": "These advanced options do not need to be changed for typical use, but allow fine tuning of workflows for users who want more control over the workflow.",
       "properties": {
+        "align_consensus": {
+          "type": "boolean",
+          "title": "Align consensus sequences to the provided reference.",
+          "default": false,
+          "description": "Align consensus sequences to the provided reference. With extremely low coverage sequences this can lead to the execution hanging as the aligner tries its best to match a long sequence of Ns to something, therefore this is off by default."
+        },
         "normalizationTargetDepth": {
           "type": "integer",
           "title": "Normalisation target depth",

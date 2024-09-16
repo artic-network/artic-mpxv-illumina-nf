@@ -84,6 +84,14 @@ workflow sequenceAnalysis {
         annotateVariantsVCF(callConsensusFreebayes.out.variants.combine(ch_preparedRef).combine(ch_gff))
       }
 
+      if (params.align_consensus) {
+        alignConsensusToReference(callConsensusFreebayes.out.consensus.combine(ch_preparedRef))
+        alignConsensusToReference.out.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.aln.fa").set{ alignment }
+
+        publishConsensus(alignment)
+      }
+      
+
       makeQCCSV(align_trim.out.ptrimmed_bam.join(callConsensusFreebayes.out.consensus, by: 0)
           .combine(ch_preparedRef)
 				  .combine(ch_bedFile)
