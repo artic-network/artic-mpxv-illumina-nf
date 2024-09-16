@@ -97,6 +97,12 @@
           "default": 200,
           "description": "Target depth of coverage to normalize to."
         },
+        "discard_incorrect_primer_pairs": {
+          "type": "boolean",
+          "title": "Discard incorrect read pairs",
+          "default": false,
+          "description": "Discard read pairs that do not have the expected primer pairs, this can lead to coverage gaps in amplicon overlap regions where the fragment size is lower than the overlap so is off by default."
+        },
         "primer_match_threshold": {
           "type": "integer",
           "title": "Primer fuzzy match window size",

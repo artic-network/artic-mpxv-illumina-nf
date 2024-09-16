@@ -51,8 +51,14 @@ process align_trim {
         normalise_string = ""
     }
 
+    if params.discard_incorrect_primer_pairs {
+        pp_string = "--discard-incorrect-primer-pairs"
+    } else {
+        pp_string = ""
+    }
+
     """
-    align_trim.py ${normalise_string} ${bed} --paired --no-read-groups --primer-match-threshold ${params.primer_match_threshold} --min-mapq ${params.min_mapq} --trim-primers --report ${sampleName}.alignreport.csv --amp-depth-report ${sampleName}.amplicon_depths.tsv < ${bam} 2> ${sampleName}.alignreport.er | samtools sort -T ${sampleName} - -o ${sampleName}.primertrimmed.rg.sorted.bam && samtools index ${sampleName}.primertrimmed.rg.sorted.bam
+    align_trim.py ${normalise_string} ${pp_string} ${bed} --paired --no-read-groups --primer-match-threshold ${params.primer_match_threshold} --min-mapq ${params.min_mapq} --trim-primers --report ${sampleName}.alignreport.csv --amp-depth-report ${sampleName}.amplicon_depths.tsv < ${bam} 2> ${sampleName}.alignreport.er | samtools sort -T ${sampleName} - -o ${sampleName}.primertrimmed.rg.sorted.bam && samtools index ${sampleName}.primertrimmed.rg.sorted.bam
     """
 }
 
