@@ -5,13 +5,10 @@ nextflow.enable.dsl = 2
 include { get_bed_ref }                from '../modules/utils.nf'
 include { publish as publishConsensus} from '../modules/utils.nf'
 include { publish as publishQCCSV}     from '../modules/utils.nf'
-include { normalizeDepth }             from '../modules/illumina.nf'
 include { performHostFilter }          from '../modules/illumina.nf'
-include { readTrimming }               from '../modules/illumina.nf'
-include { filterResidualAdapters }     from '../modules/illumina.nf'
+include { align_trim }                 from '../modules/illumina.nf'
 include { indexReference}              from '../modules/illumina.nf'
 include { readMapping }                from '../modules/illumina.nf'
-include { trimPrimerSequences }        from '../modules/illumina.nf'
 include { callConsensusFreebayes }     from '../modules/illumina.nf'
 include { annotateVariantsVCF }        from '../modules/illumina.nf'
 include { alignConsensusToReference }  from '../modules/illumina.nf'
@@ -69,23 +66,19 @@ workflow sequenceAnalysis {
 
     main:
 
-      if (!params.skip_normalize_depth) {
-        ch_reads_to_hostfilter = normalizeDepth(ch_filePairs)
-      } else {
-        ch_reads_to_hostfilter = ch_filePairs
-      }
+      // if (!params.skip_normalize_depth) {
+      //   ch_reads_to_hostfilter = normalizeDepth(ch_filePairs)
+      // } else {
+      //   ch_reads_to_hostfilter = ch_filePairs
+      // }
 
-      performHostFilter(ch_reads_to_hostfilter)
+      performHostFilter(ch_filePairs)
 
-      readTrimming(performHostFilter.out.fastqPairs)
+      readMapping(performHostFilter.out.combine(ch_preparedRef), ch_bwaIndex)
 
-      filterResidualAdapters(readTrimming.out)
+      align_trim(readMapping.out, ch_bedFile)
 
-      readMapping(filterResidualAdapters.out.combine(ch_preparedRef), ch_bwaIndex)
-
-      trimPrimerSequences(readMapping.out.combine(ch_bedFile))
-
-      callConsensusFreebayes(trimPrimerSequences.out.ptrim.combine(ch_preparedRef))
+      callConsensusFreebayes(align_trim.out.ptrimmed_bam.combine(ch_preparedRef))
 
       if (params.gff != 'NO_FILE') {
         annotateVariantsVCF(callConsensusFreebayes.out.variants.combine(ch_preparedRef).combine(ch_gff))
@@ -96,7 +89,7 @@ workflow sequenceAnalysis {
 
       publishConsensus(alignment)
 
-      makeQCCSV(trimPrimerSequences.out.ptrim.join(callConsensusFreebayes.out.consensus, by: 0)
+      makeQCCSV(align_trim.out.ptrimmed_bam.join(callConsensusFreebayes.out.consensus, by: 0)
           .combine(ch_preparedRef)
 				  .combine(ch_bedFile)
           )
@@ -106,10 +99,8 @@ workflow sequenceAnalysis {
       
       publishQCCSV(qc)
 
-      collateSamples(callConsensusFreebayes.out.consensus.join(performHostFilter.out.fastqPairs))
-
     emit:
-      qc_pass = collateSamples.out
+      qc_pass = callConsensusFreebayes.out.consensus.join(performHostFilter.out)
       alignment = alignment
 }
 

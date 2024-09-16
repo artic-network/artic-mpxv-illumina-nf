@@ -14,7 +14,7 @@ process performHostFilter {
     tuple val(sampleName), path(forward), path(reverse)
 
     output:
-    tuple val(sampleName), path("*.clean_1.fastq.gz"), path("*.clean_2.fastq.gz"), emit: fastqPairs
+    tuple val(sampleName), path("*.clean_1.fastq.gz"), path("*.clean_2.fastq.gz")
 
     script:
     """
@@ -23,101 +23,36 @@ process performHostFilter {
     """
 }
 
-process normalizeDepth {
-
-    tag { sampleName }
-
-    label  'process_low'
-
-    container 'docker.io/bryce911/bbtools:39.08'
-
-    conda 'bioconda::bbmap=39.08'
-
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_norm_R{1,2}.fq.gz', mode: 'copy'
-
-    input:
-    tuple val(sampleName), path(forward), path(reverse)
-
-    output:
-    tuple val(sampleName), path("${sampleName}_norm_R1.fq.gz"), path("${sampleName}_norm_R2.fq.gz")
-
-    script:
-    """
-    mkdir tmp
-    memory=\$(echo '${task.memory}' | cut -d ' ' -f 1)
-
-    bbnorm.sh \
-      threads=${task.cpus} \
-      target=${params.normalizationTargetDepth} \
-      mindepth=${params.normalizationMinDepth} \
-      in=${forward} \
-      in2=${reverse} \
-      out=${sampleName}_norm_R1.fq.gz \
-      out2=${sampleName}_norm_R2.fq.gz \
-      tmpdir=tmp \
-    """
-}
-
-process readTrimming {
-    /**
-    * Trims paired fastq using trim_galore (https://github.com/FelixKrueger/TrimGalore)
-    * @input tuple(sampleName, path(forward), path(reverse))
-    * @output trimgalore_out tuple(sampleName, path("*_val_1.fq.gz"), path("*_val_2.fq.gz"))
-    */
+process align_trim {
 
     tag { sampleName }
 
     label 'process_single'
 
-    container 'community.wave.seqera.io/library/trim-galore:0.6.10--e1d78c153f940cdf'
+    container 'community.wave.seqera.io/library/pysam_samtools_numpy_pandas:0ef969f9a905399f'
 
-    conda 'bioconda::trim-galore=0.6.10'
+    conda 'bioconda::pysam=0.22.1', 'bioconda::samtools=1.12', 'conda-forge::numpy=2.1.1', 'conda-forge::pandas=2.2.2'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
-
-    input:
-    tuple val(sampleName), path(forward), path(reverse)
-
-    output:
-    tuple val(sampleName), path("*_val_1.fq.gz"), path("*_val_2.fq.gz"), optional: true
-
-    script:
-    """
-    if [[ \$(gunzip -c ${forward} | head -n4 | wc -l) -eq 0 ]]; then
-      cp ${forward} ${sampleName}_hostfiltered_val_1.fq.gz
-      cp ${reverse} ${sampleName}_hostfiltered_val_2.fq.gz
-    else
-      trim_galore --paired $forward $reverse
-    fi
-    """
-}
-
-process filterResidualAdapters {
-    /**
-    * Discard reads that contain residual adapter sequences that indicate trimming may have failed
-    * @input tuple(sampleName, path(forward), path(reverse))
-    * @output untrim_filter_out tuple(sampleName, path("*_val_1.fq.gz"), path("*_val_2.fq.gz"))
-    */
-
-    tag { sampleName }
-
-    label 'process_single'
-
-    container 'community.wave.seqera.io/library/pysam:0.22.1--6e6607269e942cf3'
-
-    conda 'bioconda::pysam=0.22.1'
-
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*{1,2}_posttrim_filter.fq.gz', mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.primertrimmed.rg.sorted.bam*", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.amplicon_depths.tsv", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(forward), path(reverse)
+    tuple val(sampleName), path(bam), path(bam_index)
+    path bed
 
     output:
-    tuple val(sampleName), path("*1_posttrim_filter.fq.gz"), path("*2_posttrim_filter.fq.gz")
+    tuple val(sampleName), path("${sampleName}.primertrimmed.rg.sorted.bam"), path("${sampleName}.primertrimmed.rg.sorted.bam.bai"), emit: ptrimmed_bam
+    path "${sampleName}.amplicon_depths.tsv", emit: amplicon_depth_tsv
 
     script:
+    if (!params.skip_normalize_depth) {
+        normalise_string = "--normalise ${params.normalizationTargetDepth}"
+    } else {
+        normalise_string = ""
+    }
+
     """
-    filter_residual_adapters.py --input_R1 $forward --input_R2 $reverse
+    align_trim.py ${normalise_string} ${bed} --paired --no-read-groups --primer-match-threshold ${params.primer_match_threshold} --min-mapq ${params.min_mapq} --trim-primers --report ${sampleName}.alignreport.csv --amp-depth-report ${sampleName}.amplicon_depths.tsv < ${bam} 2> ${sampleName}.alignreport.er | samtools sort -T ${sampleName} - -o ${sampleName}.primertrimmed.rg.sorted.bam && samtools index ${sampleName}.primertrimmed.rg.sorted.bam
     """
 }
 
@@ -176,36 +111,6 @@ process readMapping {
     bwa mem -t ${task.cpus} ${ref} ${forward} ${reverse} | \
     samtools sort -o ${sampleName}.sorted.bam
     samtools index ${sampleName}.sorted.bam
-    """
-}
-
-process trimPrimerSequences {
-
-    tag { sampleName }
-
-    label 'process_low'
-
-    container 'community.wave.seqera.io/library/ivar_samtools:e656be3eda151c7e'
-
-    conda 'bioconda::ivar=1.4.2', 'bioconda::samtools=1.20'
-
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.mapped{.bam,.bam.bai}", mode: 'copy'
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.mapped.primertrimmed.sorted{.bam,.bam.bai}", mode: 'copy'
-
-    input:
-    tuple val(sampleName), path(bam), path(bam_index), path(bedfile)
-
-    output:
-    tuple val(sampleName), path("${sampleName}.mapped.bam"), path("${sampleName}.mapped.bam.bai"), emit: mapped
-    tuple val(sampleName), path("${sampleName}.mapped.primertrimmed.sorted.bam"), path("${sampleName}.mapped.primertrimmed.sorted.bam.bai" ), emit: ptrim
-
-    script:
-    """
-    samtools view -F4 -o ${sampleName}.mapped.bam ${bam}
-    samtools index ${sampleName}.mapped.bam
-    ivar trim -e -i ${sampleName}.mapped.bam -b ${bedfile} -m ${params.keepLen} -q ${params.qualThreshold} -p ivar.out
-    samtools sort -o ${sampleName}.mapped.primertrimmed.sorted.bam ivar.out.bam
-    samtools index ${sampleName}.mapped.primertrimmed.sorted.bam
     """
 }
 
