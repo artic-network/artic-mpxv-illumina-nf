@@ -96,7 +96,6 @@ workflow sequenceAnalysis {
 
     emit:
       qc_pass = callConsensusFreebayes.out.consensus.join(performHostFilter.out)
-      alignment = alignment
 }
 
 workflow mpxvIllumina {
