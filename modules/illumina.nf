@@ -51,7 +51,7 @@ process align_trim {
         normalise_string = ""
     }
 
-    if params.discard_incorrect_primer_pairs {
+    if (params.discard_incorrect_primer_pairs) {
         pp_string = "--discard-incorrect-primer-pairs"
     } else {
         pp_string = ""
