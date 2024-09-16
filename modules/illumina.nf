@@ -197,7 +197,7 @@ process alignConsensusToReference {
 
     container 'community.wave.seqera.io/library/mafft:7.526--dbad4ff150905890'
 
-    conda 'bioconda::mafft=7.525'
+    conda 'bioconda::mafft=7.526'
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.consensus.aln.fa", mode: 'copy'
 
