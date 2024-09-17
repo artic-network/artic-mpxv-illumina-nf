@@ -104,8 +104,8 @@
         "max_memory": {
           "type": "string",
           "title": "Memory",
-          "default": "16.GB",
-          "description": "Maximum possible amount of memory to use for the workflow. Must be in the format 16.GB"
+          "default": "32.GB",
+          "description": "Maximum possible amount of memory to use for the workflow. Must be in the format 32.GB"
         },
         "max_time": {
           "type": "string",
