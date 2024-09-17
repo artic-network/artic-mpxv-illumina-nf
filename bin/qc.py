@@ -306,7 +306,7 @@ def main(args):
 
     with open(args.outfile, "w") as csvfile:
         header = qc_line.keys()
-        writer = csv.DictWriter(csvfile, fieldnames=header)
+        writer = csv.DictWriter(csvfile, fieldnames=header, lineterminator="\n")
         writer.writeheader()
         writer.writerow(qc_line)
 
