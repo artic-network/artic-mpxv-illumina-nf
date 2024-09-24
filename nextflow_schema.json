@@ -51,6 +51,12 @@
             "bccdc-mpox/v2.3.0-cladeI",
             "bccdc-mpox/v2.3.0-cladeII"
           ]
+        },
+        "custom_scheme": {
+          "type": "string",
+          "format": "path",
+          "description": "Path to a custom scheme.",
+          "help_text": "If you have a custom primer scheme you can enter the details here. This must be the full path to the directory containing your appropriately named scheme bed and fasta files; primer.bed and reference.fasta."
         }
       }
     },
@@ -84,6 +90,31 @@
       },
       "required": ["outdir", "prefix", "store_dir"]
     },
+    "resource_options": {
+      "title": "Resource Options",
+      "type": "object",
+      "description": "Resource options for the workflow.",
+      "properties": {
+        "max_cpus": {
+          "type": "integer",
+          "title": "Max CPUs to use for a process",
+          "default": 16,
+          "description": "Max number of CPUs to use for a process."
+        },
+        "max_memory": {
+          "type": "string",
+          "title": "Memory",
+          "default": "32.GB",
+          "description": "Maximum possible amount of memory to use for the workflow. Must be in the format 32.GB"
+        },
+        "max_time": {
+          "type": "string",
+          "title": "Max time",
+          "default": "12.h",
+          "description": "Max time to run a process before timeout killing it. Must be in the format 12.h"
+        }
+      }
+    },
     "advanced_options": {
       "title": "Advanced Options",
       "type": "object",
@@ -91,17 +122,22 @@
       "description": "Advanced options for configuring processes inside the workflow.",
       "help_text": "These advanced options do not need to be changed for typical use, but allow fine tuning of workflows for users who want more control over the workflow.",
       "properties": {
-        "keepLen": {
-          "type": "integer",
-          "title": "Length threshold",
-          "default": 50,
-          "description": "Length (bp) of reads to keep after primer trimming."
+        "skip_host_filter": {
+          "type": "boolean",
+          "title": "Skip host filtering",
+          "default": false,
+          "description": "Skip host filtering if you are not concerned about human contamination in your dataset."
         },
-        "qualThreshold": {
-          "type": "integer",
-          "title": "Quality threshold",
-          "default": 20,
-          "description": "Sliding window quality threshold for keeping reads after primer trimming."
+        "list_schemes": {
+          "type": "boolean",
+          "default": false,
+          "description": "List primer schemes and exit without running analysis."
+        },
+        "align_consensus": {
+          "type": "boolean",
+          "title": "Align consensus sequences to the provided reference.",
+          "default": false,
+          "description": "Align consensus sequences to the provided reference. With extremely low coverage sequences this can lead to the execution hanging as the aligner tries its best to match a long sequence of Ns to something, therefore this is off by default."
         },
         "normalizationTargetDepth": {
           "type": "integer",
@@ -109,11 +145,17 @@
           "default": 200,
           "description": "Target depth of coverage to normalize to."
         },
-        "normalizationMinDepth": {
+        "discard_incorrect_primer_pairs": {
+          "type": "boolean",
+          "title": "Discard incorrect read pairs",
+          "default": false,
+          "description": "Discard read pairs that do not have the expected primer pairs, this can lead to coverage gaps in amplicon overlap regions where the fragment size is lower than the overlap so is off by default."
+        },
+        "primer_match_threshold": {
           "type": "integer",
-          "title": "Normalisation minimum depth",
-          "default": 5,
-          "description": "Maximum read length (default: set by scheme)."
+          "title": "Primer fuzzy match window size",
+          "default": 35,
+          "description": "How far from the start of a read to allow a primer match. This compensates for homology between adaptor / barcode in the reference which may otherwise cause read pairs to be dropped."
         },
         "varMinFreqThreshold": {
           "type": "number",
@@ -132,6 +174,12 @@
           "title": "Variant caller minimum depth",
           "default": 10,
           "description": "Minimum coverage depth to call variant"
+        },
+        "min_mapq": {
+          "type": "integer",
+          "title": "Minimum mapping quality",
+          "default": 20,
+          "description": "Minimum mapping quality to consider a read for variant calling."
         },
         "skip_normalize_depth": {
           "type": "boolean",
@@ -152,6 +200,20 @@
           "default": false,
           "description": "Display help text.",
           "fa_icon": "fas fa-question-circle",
+          "hidden": true
+        },
+        "version": {
+          "type": "boolean",
+          "default": false,
+          "description": "Display version.",
+          "fa_icon": "fas fa-code-branch",
+          "hidden": true
+        },
+        "fastqSearchPath": {
+          "type": "string",
+          "title": "FASTQ search path",
+          "description": "Path to search for FASTQ files.",
+          "help_text": "Path to search for FASTQ files, this is used to find the FASTQ files in the directory specified in the `directory` parameter.",
           "hidden": true
         }
       }

@@ -80,6 +80,8 @@ def make_qc_plot(
     amplicon_pool_colors = {
         "1": "tab:red",
         "2": "tab:blue",
+        "3": "tab:green",
+        "4": "tab:orange",
     }
 
     for amplicon_num, amplicon in amplicons.items():
@@ -304,7 +306,7 @@ def main(args):
 
     with open(args.outfile, "w") as csvfile:
         header = qc_line.keys()
-        writer = csv.DictWriter(csvfile, fieldnames=header)
+        writer = csv.DictWriter(csvfile, fieldnames=header, lineterminator="\n")
         writer.writeheader()
         writer.writerow(qc_line)
 

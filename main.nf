@@ -19,12 +19,6 @@ if ( !params.directory ) {
   System.exit(1)
 }
 
-if ( (params.bed && ! params.ref) || (!params.bed && params.ref) ) {
-  println("--bed and --ref must be supplied together")
-  System.exit(1)
-}
-
-
 if ( ! params.prefix ) {
      println("Please supply a prefix for your output files with --prefix")
      println("Use --help to print help")
@@ -36,13 +30,15 @@ if ( ! params.prefix ) {
      }
 } 
 
+// entrypoint workflow
+WorkflowMain.initialise(workflow, params, log)
 
 // main workflow
 workflow {
 
   Channel.fromFilePairs( params.fastqSearchPath, flat: true)
-	          .filter{ !( it[0] =~ /Undetermined/ ) }
-	          .set{ ch_filePairs }
+          .filter{ !( it[0] =~ /Undetermined/ ) }
+          .set{ ch_filePairs }
 
   main:
     mpxvIllumina(ch_filePairs)
