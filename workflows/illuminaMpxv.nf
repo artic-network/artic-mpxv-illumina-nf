@@ -116,7 +116,8 @@ workflow sequenceAnalysis {
     main:
 
       if (!params.skip_host_filter) {
-        ch_filtered_reads = performHostFilter(ch_filePairs)
+        performHostFilter(ch_filePairs)
+        ch_filtered_reads = performHostFilter.out
       } else {
         ch_filtered_reads = ch_filePairs
       }
@@ -146,7 +147,7 @@ workflow sequenceAnalysis {
       publishQCCSV(qc)
 
     emit:
-      qc_pass = callConsensusFreebayes.out.consensus.join(performHostFilter.out)
+      qc_pass = callConsensusFreebayes.out.consensus.join(ch_filtered_reads)
 }
 
 workflow mpxvIllumina {
