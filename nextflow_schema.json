@@ -122,7 +122,7 @@
       "description": "Advanced options for configuring processes inside the workflow.",
       "help_text": "These advanced options do not need to be changed for typical use, but allow fine tuning of workflows for users who want more control over the workflow.",
       "properties": {
-        "skip_host_filtering": {
+        "skip_host_filter": {
           "type": "boolean",
           "title": "Skip host filtering",
           "default": false,
