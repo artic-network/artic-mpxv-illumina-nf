@@ -115,15 +115,13 @@ workflow sequenceAnalysis {
 
     main:
 
-      // if (!params.skip_normalize_depth) {
-      //   ch_reads_to_hostfilter = normalizeDepth(ch_filePairs)
-      // } else {
-      //   ch_reads_to_hostfilter = ch_filePairs
-      // }
+      if (!params.skip_host_filter) {
+        ch_filtered_reads = performHostFilter(ch_filePairs)
+      } else {
+        ch_filtered_reads = ch_filePairs
+      }
 
-      performHostFilter(ch_filePairs)
-
-      readMapping(performHostFilter.out.combine(ch_preparedRef), ch_bwaIndex)
+      readMapping(ch_filtered_reads.combine(ch_preparedRef), ch_bwaIndex)
 
       align_trim(readMapping.out, ch_bedFile)
 
