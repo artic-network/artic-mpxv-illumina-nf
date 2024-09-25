@@ -105,8 +105,16 @@
         "clade": {
           "type": "string",
           "title": "Clade",
-          "description": "Specify whether the alignment is primarily for `cladei` or `cladeii`.",
-          "enum": ["cladei", "cladeia", "cladeib", "cladeii", "cladeiia", "cladeiib"],
+          "description": "Specify whether the sequencing run is primarily `cladeI` or `cladeII`.",
+          "default": "cladei",
+          "enum": [
+            "cladei",
+            "cladeia",
+            "cladeib",
+            "cladeii",
+            "cladeiia",
+            "cladeiib"
+          ],
           "help_text": ""
         },
         "run_seq_qc": {

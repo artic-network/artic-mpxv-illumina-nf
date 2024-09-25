@@ -148,7 +148,7 @@ workflow sequenceAnalysis {
       
       publishQCCSV(qc)
 
-      collateSamples(callConsensusFreebayes.out.consensus.join(performHostFilter.out.fastqPairs))
+      collateSamples(callConsensusFreebayes.out.consensus.join(ch_filtered_reads))
 
       callConsensusFreebayes.out.consensus.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.fa").set{ consensus }
       if ( params.squirrel_assembly_refs ) {

@@ -23,7 +23,7 @@ process squirrelAlignmentAndQC {
     if ( params.run_phylo )
         extra += " --run-phylo"
     if ( params.run_seq_qc )
-        extra += " --run-seq-qc"
+        extra += " --seq-qc"
     if ( params.outgroups )
         extra += " --outgroups ${params.outgroups}"
 
