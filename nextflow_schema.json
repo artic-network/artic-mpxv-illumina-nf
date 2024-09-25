@@ -90,12 +90,18 @@
       },
       "required": ["outdir", "prefix", "store_dir"]
     },
-    "mpxv_options": {
-      "title": "Monkeypox virus Options",
+    "squirrel_options": {
+      "title": "Squirrel Options",
       "type": "object",
-      "description": "Options related to MPXV",
-      "default": "",
+      "description": "Options related to running Squirrel",
       "properties": {
+        "skip_squirrel": {
+          "type": "boolean",
+          "default": false,
+          "title": "Skip Squirrel",
+          "description": "Do not run alignment and QC pipeline",
+          "help_text": ""
+        },
         "clade": {
           "type": "string",
           "title": "Clade",
@@ -103,12 +109,11 @@
           "enum": ["cladei", "cladeia", "cladeib", "cladeii", "cladeiia", "cladeiib"],
           "help_text": ""
         },
-        "run_phylo": {
+        "run_seq_qc": {
           "type": "boolean",
-          "default": false,
-          "hidden": true,
-          "title": "Run Phylo",
-          "description": "Run phylogenetic reconstruction pipeline (feature in development)",
+          "default": true,
+          "title": "Run Seq QC",
+          "description": "Run QC pipeline (feature in development)",
           "help_text": "This feature is currently only supported squirrel-nf and squirrel"
         },
         "outgroups": {
@@ -122,6 +127,7 @@
           "type": "string",
           "format": "path",
           "title": "Assembly References",
+          "hidden": true,
           "description": "References to check for `calls to reference` against, used only by the sequence QC process.",
           "help_text": ""
         }
@@ -270,7 +276,7 @@
       "$ref": "#/definitions/output"
     },
     {
-      "$ref": "#/definitions/mpxv_options"
+      "$ref": "#/definitions/squirrel_options"
     },
     {
       "$ref": "#/definitions/resource_options"
