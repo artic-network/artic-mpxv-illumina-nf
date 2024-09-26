@@ -106,7 +106,6 @@
           "type": "string",
           "title": "Clade",
           "description": "Specify whether the sequencing run is primarily `cladeI` or `cladeII`.",
-          "default": "cladei",
           "enum": [
             "cladei",
             "cladeia",
