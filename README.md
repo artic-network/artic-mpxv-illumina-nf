@@ -10,7 +10,7 @@ flowchart TD
   ref[reference.fasta]
   primers[primer.bed]
   fastq[directory]
-  human-t2t-hla[humanT2Treference]
+  humanT2Treference[humanT2Treference]
   fastq --> performHostFilter
   humanT2Treference --> performHostFilter
   performHostFilter(performHostFilter) --> readMapping(readMapping)
@@ -27,7 +27,6 @@ flowchart TD
   callConsensusFreebayes --> Squirrel(Squirrel)
   ref --> makeQCCSV
   primers --> makeQCCSV
-  primer_pairs --> makeQCCSV
   makeQCCSV --> qcCSV(qc.csv)
   makeQCCSV --> depthPNG(depth.png)
   Squirrel --> SquirrelReport(squirrel-report.html)
