@@ -18,6 +18,8 @@ include { makeQCCSV }         from '../modules/qc.nf'
 
 include { collateSamples }    from '../modules/upload.nf'
 
+include { squirrelAlignmentAndQC } from '../modules/squirrel.nf'
+
 workflow prepareReferenceFiles {
 
   c_green = params.monochrome_logs ? '' : "\033[0;32m";
@@ -146,8 +148,19 @@ workflow sequenceAnalysis {
       
       publishQCCSV(qc)
 
+      collateSamples(callConsensusFreebayes.out.consensus.join(ch_filtered_reads))
+
+      callConsensusFreebayes.out.consensus.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.fa").set{ consensus }
+      if ( params.squirrel_assembly_refs ) {
+            refs_ch = channel.fromPath("${params.squirrel_assembly_refs}", checkIfExists:true)
+      } else {
+            refs_ch = channel.fromPath("${projectDir}/test_data/empty.fa", checkIfExists:true)
+      }
+      squirrelAlignmentAndQC(consensus, refs_ch)
+
     emit:
-      qc_pass = callConsensusFreebayes.out.consensus.join(ch_filtered_reads)
+      qc_pass = collateSamples.out
+      alignment = squirrelAlignmentAndQC.out.alignment
 }
 
 workflow mpxvIllumina {
@@ -156,6 +169,7 @@ workflow mpxvIllumina {
 
     main:
       prepareReferenceFiles()
+
       sequenceAnalysis(ch_filePairs, prepareReferenceFiles.out.reference, prepareReferenceFiles.out.bwaIndex, prepareReferenceFiles.out.primers)
 }
 

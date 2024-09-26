@@ -90,6 +90,52 @@
       },
       "required": ["outdir", "prefix", "store_dir"]
     },
+    "squirrel_options": {
+      "title": "Squirrel Options",
+      "type": "object",
+      "description": "Options related to running Squirrel",
+      "properties": {
+        "skip_squirrel": {
+          "type": "boolean",
+          "default": false,
+          "title": "Skip Squirrel",
+          "description": "Do not run alignment and QC pipeline",
+          "help_text": ""
+        },
+        "clade": {
+          "type": "string",
+          "title": "Clade",
+          "description": "Specify whether the sequencing run is primarily `cladeI` or `cladeII`.",
+          "enum": [
+            "cladei",
+            "cladeia",
+            "cladeib",
+            "cladeii",
+            "cladeiia",
+            "cladeiib"
+          ],
+          "help_text": ""
+        },
+        "outgroups": {
+          "type": "string",
+          "title": "Outgroups",
+          "hidden": true,
+          "description": "Specify which MPXV outgroup(s) in the alignment to use in the phylogeny.",
+          "help_text": "These are required by the phylogenetics module and will get pruned out from the final tree."
+        },
+        "squirrel_assembly_refs": {
+          "type": "string",
+          "format": "path",
+          "title": "Assembly References",
+          "hidden": true,
+          "description": "References to check for `calls to reference` against, used only by the sequence QC process.",
+          "help_text": ""
+        }
+      },
+      "required": ["clade"],
+      "fa_icon": "fas fa-address-card",
+      "help_text": ""
+    },
     "resource_options": {
       "title": "Resource Options",
       "type": "object",
@@ -228,6 +274,12 @@
     },
     {
       "$ref": "#/definitions/output"
+    },
+    {
+      "$ref": "#/definitions/squirrel_options"
+    },
+    {
+      "$ref": "#/definitions/resource_options"
     },
     {
       "$ref": "#/definitions/advanced_options"
