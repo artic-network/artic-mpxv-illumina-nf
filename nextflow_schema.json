@@ -117,13 +117,6 @@
           ],
           "help_text": ""
         },
-        "run_seq_qc": {
-          "type": "boolean",
-          "default": true,
-          "title": "Run Seq QC",
-          "description": "Run QC pipeline (feature in development)",
-          "help_text": "This feature is currently only supported squirrel-nf and squirrel"
-        },
         "outgroups": {
           "type": "string",
           "title": "Outgroups",
