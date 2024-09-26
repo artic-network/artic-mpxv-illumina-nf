@@ -35,7 +35,7 @@ flowchart TD
 #### Quick-start
 
 ```
-nextflow run artic-network/artic-mpxv-illumina-nf --help
+nextflow run -r main artic-network/artic-mpxv-illumina-nf --help
 ```
 
 Will print up-to-date information on all command-line parameters for the current version.
