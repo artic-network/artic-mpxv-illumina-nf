@@ -14,9 +14,6 @@ include { annotateVariantsVCF }        from '../modules/illumina.nf'
 include { alignConsensusToReference }  from '../modules/illumina.nf'
 
 include { makeQCCSV }         from '../modules/qc.nf'
-// include { writeQCSummaryCSV } from '../modules/qc.nf'
-
-include { collateSamples }    from '../modules/upload.nf'
 
 include { squirrelAlignmentAndQC } from '../modules/squirrel.nf'
 
@@ -137,7 +134,6 @@ workflow sequenceAnalysis {
         publishConsensus(alignment)
       }
       
-
       makeQCCSV(align_trim.out.ptrimmed_bam.join(callConsensusFreebayes.out.consensus, by: 0)
           .combine(ch_preparedRef)
 				  .combine(ch_bedFile)
@@ -148,8 +144,6 @@ workflow sequenceAnalysis {
       
       publishQCCSV(qc)
 
-      collateSamples(callConsensusFreebayes.out.consensus.join(ch_filtered_reads))
-
       callConsensusFreebayes.out.consensus.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.fa").set{ consensus }
       if ( params.squirrel_assembly_refs ) {
             refs_ch = channel.fromPath("${params.squirrel_assembly_refs}", checkIfExists:true)
@@ -159,7 +153,6 @@ workflow sequenceAnalysis {
       squirrelAlignmentAndQC(consensus, refs_ch)
 
     emit:
-      qc_pass = collateSamples.out
       alignment = squirrelAlignmentAndQC.out.alignment
 }
 
