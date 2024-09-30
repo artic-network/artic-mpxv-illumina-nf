@@ -9,7 +9,7 @@ This pipeline is based on the [BCCDC-PHL/ncov2019-artic-nf](https://github.com/B
 flowchart TD
   ref[reference.fasta]
   primers[primer.bed]
-  fastq[directory]
+  fastq[fastq]
   fetchHostileReference(fetchHostileReference)
   fastq --> performHostFilter
   fetchHostileReference --> performHostFilter
