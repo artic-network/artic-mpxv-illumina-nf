@@ -2,9 +2,9 @@
 
 nextflow.enable.dsl = 2
 
-include { get_bed_ref }                from '../modules/utils.nf'
 include { publish as publishConsensus} from '../modules/utils.nf'
 include { publish as publishQCCSV}     from '../modules/utils.nf'
+include { fetchHostileReference }      from '../modules/illumina.nf'
 include { performHostFilter }          from '../modules/illumina.nf'
 include { align_trim }                 from '../modules/illumina.nf'
 include { indexReference}              from '../modules/illumina.nf'
@@ -115,7 +115,8 @@ workflow sequenceAnalysis {
     main:
 
       if (!params.skip_host_filter) {
-        performHostFilter(ch_filePairs)
+        fetchHostileReference()
+        performHostFilter(ch_filePairs, fetchHostileReference.out)
         ch_filtered_reads = performHostFilter.out
       } else {
         ch_filtered_reads = ch_filePairs

@@ -1,3 +1,23 @@
+process fetchHostileReference {
+
+    label 'process_low'
+
+    container 'community.wave.seqera.io/library/hostile:1.1.0--15df70fea624a735'
+
+    conda 'bioconda::hostile=1.1.0'
+
+    output:
+    path "hostile.ok"
+
+    script:
+    """
+    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
+    hostile fetch --aligner bowtie2
+
+    touch hostile.ok
+    """
+}
+
 process performHostFilter {
 
     tag { sampleName }
@@ -12,6 +32,7 @@ process performHostFilter {
 
     input:
     tuple val(sampleName), path(forward), path(reverse)
+    path hostile_ok
 
     output:
     tuple val(sampleName), path("*.clean_1.fastq.gz"), path("*.clean_2.fastq.gz")
