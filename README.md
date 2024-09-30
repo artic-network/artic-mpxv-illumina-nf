@@ -10,9 +10,9 @@ flowchart TD
   ref[reference.fasta]
   primers[primer.bed]
   fastq[directory]
-  humanT2Treference[humanT2Treference]
+  fetchHostileReference(fetchHostileReference)
   fastq --> performHostFilter
-  humanT2Treference --> performHostFilter
+  fetchHostileReference --> performHostFilter
   performHostFilter(performHostFilter) --> readMapping(readMapping)
   ref --> readMapping(readMapping)
   readMapping(readMapping) --> align_trim(align_trim)
