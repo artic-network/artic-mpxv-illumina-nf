@@ -52,7 +52,7 @@ process align_trim {
 
     container 'community.wave.seqera.io/library/pysam_samtools_numpy_pandas:0ef969f9a905399f'
 
-    conda 'bioconda::pysam=0.22.1, bioconda::samtools=1.12, conda-forge::numpy=2.1.1, conda-forge::pandas=2.2.2'
+    conda 'bioconda::pysam=0.22.1 bioconda::samtools=1.12 conda-forge::numpy=2.1.1 conda-forge::pandas=2.2.2'
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.primertrimmed.rg.sorted.bam*", mode: 'copy'
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.amplicon_depths.tsv", mode: 'copy'
@@ -122,7 +122,7 @@ process readMapping {
 
     container 'community.wave.seqera.io/library/bwa_samtools:3938c84206f62975'
 
-    conda 'bioconda::bwa=0.7.18, bioconda::samtools=1.12'
+    conda 'bioconda::bwa=0.7.18 bioconda::samtools=1.12'
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.sorted{.bam,.bam.bai}", mode: 'copy'
 
@@ -149,7 +149,7 @@ process callConsensusFreebayes {
 
     container 'community.wave.seqera.io/library/bcftools_freebayes_pysam_tabix:c16cddc9a1a28b82'
 
-    conda 'bioconda::freebayes=1.3.6, bioconda::bcftools=1.20, bioconda::pysam=0.22.1, bioconda::tabix=1.11'
+    conda 'bioconda::freebayes=1.3.6 bioconda::bcftools=1.20 bioconda::pysam=0.22.1 bioconda::tabix=1.11'
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.consensus.fa", mode: 'copy'
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.variants.norm.vcf", mode: 'copy'
