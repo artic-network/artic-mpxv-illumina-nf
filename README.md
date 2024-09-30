@@ -61,7 +61,7 @@ Special thanks to the following for writing / modifying / maintaining previous v
 
 ### Problems and Solutions
 
-1. Error during `mpxvIllumina:prepareReferenceFiles:performHostFilter` step
+1. Error during `mpxvIllumina:sequenceAnalysis:fetchHostileReference` step
   ```
   httpx.HTTPError: Failed to download https://objectstorage.uk-london-1.oraclecloud.com/n/lrbvkel2wjot/b/human-genome-bucket/o/human-t2t-hla.tar. Ensure you are connected to the internet, or provide a valid path to a local index
   ```
