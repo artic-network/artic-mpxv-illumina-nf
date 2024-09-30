@@ -6,7 +6,7 @@ process makeQCCSV {
 
     container 'community.wave.seqera.io/library/samtools_biopython_matplotlib_pandas:2bb143fe29dc1ce9'
 
-    conda "conda-forge::matplotlib=3.9.2", "conda-forge::pandas=2.2.2", "conda-forge::biopython=1.84", "bioconda::samtools=1.20"
+    conda "conda-forge::matplotlib=3.9.2 conda-forge::pandas=2.2.2 conda-forge::biopython=1.84 bioconda::samtools=1.20"
 
     publishDir "${params.outdir}/qc_plots", pattern: "${sampleName}.depth.png", mode: 'copy'
 

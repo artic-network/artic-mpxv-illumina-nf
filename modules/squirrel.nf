@@ -4,6 +4,8 @@ process squirrelAlignmentAndQC {
 
     container "docker.io/articnetworkorg/squirrel@sha256:78921da0c726dd525f5d72db331526975adb634478ee31047c46765bd3d5a64a"
 
+    conda "${projectDir}/environments/squirrel.yml"
+
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "squirrel/**", mode: 'copy', saveAs: {  fn -> fn.replace("squirrel/", "")}
 
     input:
