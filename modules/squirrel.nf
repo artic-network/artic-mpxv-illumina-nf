@@ -2,7 +2,7 @@ process squirrelAlignmentAndQC {
 
     label "process_low"
 
-    container "docker.io/articnetworkorg/squirrel@sha256:78921da0c726dd525f5d72db331526975adb634478ee31047c46765bd3d5a64a"
+    container "docker.io/articnetworkorg/squirrel@1.0.10"
 
     conda "${projectDir}/environments/squirrel.yml"
 
@@ -11,8 +11,10 @@ process squirrelAlignmentAndQC {
     input:
         path fasta
         path refs
+        path background
     output:
         path "squirrel/all_consensus.aln.fasta", emit: alignment
+        path "squirrel/all_consensus.tree", emit: tree
         path "squirrel/**", emit: all
         path "squirrel.version", emit: version
 
@@ -20,10 +22,14 @@ process squirrelAlignmentAndQC {
     extra = ""
     if ( params.squirrel_assembly_refs )
         extra += " --assembly-refs ${refs}"
+    if ( params.background_sequences )
+        extra += " --background-file ${background}"
     if ( params.clade )
         extra += " --clade ${params.clade}"
     if ( params.run_phylo )
-        extra += " --run-phylo"
+        extra += " --run-phylo --include-background"
+    if ( params.run_apobec3_phylo )
+        extra += " --run-apobec3-phylo --include-background"
     if ( params.outgroups )
         extra += " --outgroups ${params.outgroups}"
 

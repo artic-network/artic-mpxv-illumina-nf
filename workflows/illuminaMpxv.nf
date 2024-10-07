@@ -151,10 +151,16 @@ workflow sequenceAnalysis {
       } else {
             refs_ch = channel.fromPath("${projectDir}/test_data/empty.fa", checkIfExists:true)
       }
-      squirrelAlignmentAndQC(consensus, refs_ch)
+      if ( params.background_sequences ) {
+            background_ch = channel.fromPath("${params.background_sequences}", checkIfExists:true)
+      } else {
+            background_ch = channel.fromPath("${projectDir}/test_data/empty.fa", checkIfExists:true)
+      }
+      squirrelAlignmentAndQC(consensus, refs_ch, background_ch)
 
     emit:
       alignment = squirrelAlignmentAndQC.out.alignment
+      tree = squirrelAlignmentAndQC.out.tree
 }
 
 workflow mpxvIllumina {

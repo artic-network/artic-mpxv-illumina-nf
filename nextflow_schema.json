@@ -115,6 +115,20 @@
           ],
           "help_text": ""
         },
+        "run_phylo": {
+          "type": "boolean",
+          "default": false,
+          "title": "Run Squirrel phylogenetics pipeline",
+          "description": "Run Squirrel phylogenetics pipeline.",
+          "help_text": "Run the phylogenetics pipeline in Squirrel with clade-specific background sequences."
+        },
+        "run_apobec3_phylo": {
+          "type": "boolean",
+          "default": false,
+          "title": "Run Squirrel phylogenetics and APOBEC3 reconstruction pipelines",
+          "description": "Run both the Squirrel phylogenetics and APOBEC3 reconstruction pipelines.",
+          "help_text": "Run the Squirrel phylogenetics pipeline and APOBEC3 reconstruction pipelines with clade-specific background sequences."
+        },
         "outgroups": {
           "type": "string",
           "title": "Outgroups",
@@ -129,6 +143,14 @@
           "hidden": true,
           "description": "References to check for `calls to reference` against, used only by the sequence QC process.",
           "help_text": ""
+        },
+        "background_sequences": {
+          "type": "string",
+          "format": "path",
+          "title": "Background sequences for use in phylogenetics pipeline",
+          "hidden": true,
+          "description": "Background sequences to use in the phylogenetics pipeline.",
+          "help_text": "FASTA file containing background sequences to use in the phylogenetics pipeline."
         }
       },
       "required": ["clade"],
