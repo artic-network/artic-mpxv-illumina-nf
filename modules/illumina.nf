@@ -18,6 +18,35 @@ process fetchHostileReference {
     """
 }
 
+process readTrimming {
+    /**
+    * Trims paired fastq using trim_galore (https://github.com/FelixKrueger/TrimGalore)
+    * @input tuple(sampleName, path(forward), path(reverse))
+    * @output trimgalore_out tuple(sampleName, path("*_val_1.fq.gz"), path("*_val_2.fq.gz"))
+    */
+
+    tag { sampleName }
+
+    label 'process_low'
+
+    container 'community.wave.seqera.io/library/trim-galore:0.6.10--e1d78c153f940cdf'
+
+    conda 'bioconda::trim-galore=0.6.10'
+
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
+
+    input:
+    tuple val(sampleName), path(forward), path(reverse)
+
+    output:
+    tuple val(sampleName), path("*_val_1.fq.gz"), path("*_val_2.fq.gz")
+
+    script:
+    """
+    trim_galore --cores ${task.cpus} --paired ${forward} ${reverse}
+    """
+}
+
 process performHostFilter {
 
     tag { sampleName }
