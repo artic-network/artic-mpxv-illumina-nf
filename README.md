@@ -13,7 +13,8 @@ flowchart TD
   fetchHostileReference(fetchHostileReference)
   fastq --> performHostFilter
   fetchHostileReference --> performHostFilter
-  performHostFilter(performHostFilter) --> readMapping(readMapping)
+  performHostFilter(performHostFilter) --> readTrimming(readTrimming)
+  reatTrimming --> readMapping(readMapping)
   ref --> readMapping(readMapping)
   readMapping(readMapping) --> align_trim(align_trim)
   primers --> align_trim(align_trim)
