@@ -2,12 +2,11 @@
 
 nextflow.enable.dsl = 2
 
-include { publish as publishConsensus} from '../modules/utils.nf'
-include { publish as publishQCCSV}     from '../modules/utils.nf'
 include { fetchHostileReference }      from '../modules/illumina.nf'
 include { performHostFilter }          from '../modules/illumina.nf'
 include { align_trim }                 from '../modules/illumina.nf'
 include { indexReference}              from '../modules/illumina.nf'
+include { readTrimming }               from '../modules/illumina.nf'
 include { readMapping }                from '../modules/illumina.nf'
 include { callConsensusFreebayes }     from '../modules/illumina.nf'
 include { annotateVariantsVCF }        from '../modules/illumina.nf'
@@ -122,7 +121,9 @@ workflow sequenceAnalysis {
         ch_filtered_reads = ch_filePairs
       }
 
-      readMapping(ch_filtered_reads.combine(ch_preparedRef), ch_bwaIndex)
+      readTrimming(ch_filtered_reads)
+
+      readMapping(readTrimming.out.combine(ch_preparedRef), ch_bwaIndex)
 
       align_trim(readMapping.out, ch_bedFile)
 
@@ -130,9 +131,10 @@ workflow sequenceAnalysis {
 
       if (params.align_consensus) {
         alignConsensusToReference(callConsensusFreebayes.out.consensus.combine(ch_preparedRef))
-        alignConsensusToReference.out.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.aln.fa").set{ alignment }
-
-        publishConsensus(alignment)
+        alignConsensusToReference.out
+          .map{ sampleName,sampleFasta -> sampleFasta }
+          .collectFile(name: "${params.prefix}.all_consensus.aln.fasta", storeDir: "${params.outdir}/")
+          .set{ alignment }
       }
       
       makeQCCSV(align_trim.out.ptrimmed_bam.join(callConsensusFreebayes.out.consensus, by: 0)
@@ -141,15 +143,17 @@ workflow sequenceAnalysis {
           )
 
       makeQCCSV.out.csv
-          .collectFile(name: "${params.prefix}.qc.csv", skip: 1, keepHeader: true).set { qc }
+          .collectFile(name: "${params.prefix}.qc.csv", skip: 1, keepHeader: true, storeDir: "${params.outdir}/")
+          .set { qc }
       
-      publishQCCSV(qc)
+      callConsensusFreebayes.out.consensus.map{ sampleName,sampleFasta -> sampleFasta }
+        .collectFile(name: "${params.prefix}.all_consensus.fasta", storeDir: "${params.outdir}/")
+        .set{ consensus }
 
-      callConsensusFreebayes.out.consensus.map{ sampleName,sampleFasta -> sampleFasta }.collectFile(name: "all_consensus.fa").set{ consensus }
       if ( params.squirrel_assembly_refs ) {
             refs_ch = channel.fromPath("${params.squirrel_assembly_refs}", checkIfExists:true)
       } else {
-            refs_ch = channel.fromPath("${projectDir}/test_data/empty.fa", checkIfExists:true)
+            refs_ch = channel.fromPath("${projectDir}/test_data/empty.fasta", checkIfExists:true)
       }
       squirrelAlignmentAndQC(consensus, refs_ch)
 
