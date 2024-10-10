@@ -43,7 +43,7 @@ process readTrimming {
 
     script:
     """
-    trim_galore --paired ${forward} ${reverse}
+    trim_galore --cores ${task.cpus} --paired ${forward} ${reverse}
     """
 }
 
