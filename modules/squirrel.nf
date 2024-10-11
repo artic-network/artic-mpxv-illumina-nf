@@ -2,7 +2,7 @@ process squirrelAlignmentAndQC {
 
     label "process_low"
 
-    container "docker.io/articnetworkorg/squirrel:1.0.10"
+    container "community.wave.seqera.io/library/squirrel:1.0.10--dc85d171b951f751"
 
     conda "bioconda::squirrel=1.0.10"
 
