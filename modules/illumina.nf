@@ -11,7 +11,7 @@ process fetchHostileReference {
 
     script:
     """
-    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
+    export HOSTILE_CACHE_DIR='${params.store_dir}/hostile'
     hostile fetch --aligner bowtie2
 
     touch hostile.ok
@@ -68,7 +68,7 @@ process performHostFilter {
 
     script:
     """
-    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
+    export HOSTILE_CACHE_DIR='${params.store_dir}/hostile/'
     hostile clean --fastq1 ${forward} --fastq2 ${reverse} --out-dir . --threads ${task.cpus}
     """
 }
