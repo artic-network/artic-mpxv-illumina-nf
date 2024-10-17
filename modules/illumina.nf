@@ -33,6 +33,8 @@ process readTrimming {
 
     conda 'bioconda::trim-galore=0.6.10'
 
+    errorStrategy {task.exitStatus == 255 ? "ignore" : "terminate"}
+
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
 
     input:
