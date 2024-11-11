@@ -23,7 +23,9 @@
           "help_text": "Directory containing the input FASTQ files"
         }
       },
-      "required": ["directory"]
+      "required": [
+        "directory"
+      ]
     },
     "primer_scheme_selection": {
       "title": "Primer Scheme Selection",
@@ -39,10 +41,14 @@
         },
         "scheme_version": {
           "type": "string",
-          "default": "yale-mpox/v1.0.0-cladeI",
+          "default": "artic-inrb-mpox/v1.0.0-cladeia",
           "description": "Primer scheme version.",
           "help_text": "Version of the primer scheme to use, `yale-mpox/v1.0.0-cladeI` and `yale-mpox/v1.0.0-cladeII` are the same scheme but use separate reference fastas.",
           "enum": [
+            "artic-inrb-mpox/v1.0.0-cladeia",
+            "artic-inrb-mpox/v1.0.0-cladeib",
+            "artic-inrb-mpox/v1.0.0-cladeiia",
+            "artic-inrb-mpox/v1.0.0-cladeiib",
             "yale-mpox/v1.0.0-cladeI",
             "yale-mpox/v1.0.0-cladeII",
             "rigshospitalet/v1.0.0",
@@ -87,7 +93,11 @@
           "help_text": "Prefix for output files, Sequencing run name is a good choice e.g DDMMYY_MACHINEID_RUN_FLOWCELLID."
         }
       },
-      "required": ["outdir", "prefix", "store_dir"]
+      "required": [
+        "outdir",
+        "prefix",
+        "store_dir"
+      ]
     },
     "squirrel_options": {
       "title": "Squirrel Options",
@@ -131,7 +141,9 @@
           "help_text": ""
         }
       },
-      "required": ["clade"],
+      "required": [
+        "clade"
+      ],
       "fa_icon": "fas fa-address-card",
       "help_text": ""
     },
