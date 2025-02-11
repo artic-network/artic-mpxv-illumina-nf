@@ -11,7 +11,7 @@ process makeQCCSV {
     publishDir "${params.outdir}/qc_plots", pattern: "${sampleName}.depth.png", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(bam), path(bam_index), path(fasta), path(ref), path(primer_bed)
+    tuple val(sampleName), path(bam), path(bam_index), path(scheme), path(fasta)
 
     output:
     path "${params.prefix}.${sampleName}.qc.csv", emit: csv
@@ -19,7 +19,7 @@ process makeQCCSV {
 
     script:
     """
-    qc.py --outfile ${params.prefix}.${sampleName}.qc.csv --sample ${sampleName} --ref ${ref} --bam ${bam} --fasta ${fasta} --primer-bed ${primer_bed} --min-depth ${params.varMinDepth} --primer-pairs primer-pairs.tsv
+    qc.py --outfile ${params.prefix}.${sampleName}.qc.csv --sample ${sampleName} --ref reference.fasta --bam ${bam} --fasta ${fasta} --primer-bed primer.bed --min-depth ${params.varMinDepth} --primer-pairs primer-pairs.tsv
     """
 }
 

@@ -413,6 +413,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Get a primer scheme and reference fasta file from the quick-lab/primerschemes repository"
     )
+    parser.add_argument("--read-file", help="Read file to use for reference selection")
     parser.add_argument(
         "--scheme-directory",
         default="primerschemes",
@@ -439,6 +440,7 @@ def main():
         scheme_version=scheme_version,
         scheme_directory=args.scheme_directory,
         scheme_length=scheme_length,
+        read_file=args.read_file,
     )
 
     os.makedirs("primer_scheme", exist_ok=True)

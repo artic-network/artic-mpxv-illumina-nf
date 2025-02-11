@@ -22,17 +22,20 @@ process fetchScheme {
 
     label 'process_low'
 
-    container 'community.wave.seqera.io/library/biopython_seqtk_clint:ba02674ac918df72'
+    container 'community.wave.seqera.io/library/minimap2_seqtk_biopython_clint_requests:e7426a24d372fbd7'
 
-    conda 'bioconda::biopython=1.79 bioconda::seqtk=r93 bioconda::clint=0.5.1'
+    conda 'bioconda::biopython=1.85 bioconda::seqtk=1.4 bioconda::clint=0.5.1 bioconda::requests=2.32.3 bioconda::minimap2=2.28'
+
+    input:
+    val scheme_name
+    tuple val(sampleName), path(forward), path(reverse)
 
     output:
-    path "primer_scheme/primer.bed", emit: bed
-    path "primer_scheme/primer.fasta", emit: ref
+    tuple val(sampleName), path("primer_scheme/*")
 
     script:
     """
-    get_scheme.py --scheme-directory ${params.store_dir}/primerschemes --scheme-name ${params.scheme}
+    get_scheme.py --read-file ${forward} --scheme-directory ${params.store_dir}/primerschemes ${scheme_name}
     """
 }
 
@@ -107,11 +110,10 @@ process align_trim {
     publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.amplicon_depths.tsv", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(bam), path(bam_index)
-    path bed
+    tuple val(sampleName), path(bam), path(bam_index), path(scheme)
 
     output:
-    tuple val(sampleName), path("${sampleName}.primertrimmed.rg.sorted.bam"), path("${sampleName}.primertrimmed.rg.sorted.bam.bai"), emit: ptrimmed_bam
+    tuple val(sampleName), path("${sampleName}.primertrimmed.rg.sorted.bam"), path("${sampleName}.primertrimmed.rg.sorted.bam.bai"), path(scheme), emit: ptrimmed_bam
     path "${sampleName}.amplicon_depths.tsv", emit: amplicon_depth_tsv
 
     script:
@@ -130,32 +132,7 @@ process align_trim {
     }
 
     """
-    align_trim.py ${normalise_string} ${pp_string} ${bed} --paired --no-read-groups --primer-match-threshold ${params.primer_match_threshold} --min-mapq ${params.min_mapq} --trim-primers --report ${sampleName}.alignreport.csv --amp-depth-report ${sampleName}.amplicon_depths.tsv < ${bam} 2> ${sampleName}.alignreport.er | samtools sort -T ${sampleName} - -o ${sampleName}.primertrimmed.rg.sorted.bam && samtools index ${sampleName}.primertrimmed.rg.sorted.bam
-    """
-}
-
-process indexReference {
-    /**
-    * Indexes reference fasta file in the scheme repo using bwa.
-    */
-
-    tag { ref }
-
-    label 'process_single'
-
-    container 'community.wave.seqera.io/library/bwa:0.7.18--324359fbc6e00dba'
-
-    conda 'bioconda::bwa=0.7.18'
-
-    input:
-    path ref
-
-    output:
-    path "${ref}.*"
-
-    script:
-    """
-    bwa index ${ref}
+    align_trim.py ${normalise_string} ${pp_string} primer.bed --paired --no-read-groups --primer-match-threshold ${params.primer_match_threshold} --min-mapq ${params.min_mapq} --trim-primers --report ${sampleName}.alignreport.csv --amp-depth-report ${sampleName}.amplicon_depths.tsv < ${bam} 2> ${sampleName}.alignreport.er | samtools sort -T ${sampleName} - -o ${sampleName}.primertrimmed.rg.sorted.bam && samtools index ${sampleName}.primertrimmed.rg.sorted.bam
     """
 }
 
@@ -178,15 +155,15 @@ process readMapping {
     publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.sorted{.bam,.bam.bai}", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(forward), path(reverse), path(ref)
-    path bwaIndex
+    tuple val(sampleName), path(forward), path(reverse), path(scheme)
 
     output:
-    tuple val(sampleName), path("${sampleName}.sorted.bam"), path("${sampleName}.sorted.bam.bai")
+    tuple val(sampleName), path("${sampleName}.sorted.bam"), path("${sampleName}.sorted.bam.bai"), path(scheme)
 
     script:
     """
-    bwa mem -t ${task.cpus} ${ref} ${forward} ${reverse} | \
+    bwa index reference.fasta
+    bwa mem -t ${task.cpus} reference.fasta ${forward} ${reverse} | \
     samtools sort -o ${sampleName}.sorted.bam
     samtools index ${sampleName}.sorted.bam
     """
@@ -206,7 +183,7 @@ process callConsensusFreebayes {
     publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.variants.norm.vcf", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(bam), path(bam_index), path(ref)
+    tuple val(sampleName), path(bam), path(bam_index), path(scheme)
 
     output:
     tuple val(sampleName), path("${sampleName}.consensus.fa"), emit: consensus
@@ -218,7 +195,7 @@ process callConsensusFreebayes {
     #   --gvcf --gvcf-dont-use-chunk true ${bam} | sed s/QR,Number=1,Type=Integer/QR,Number=1,Type=Float/ > ${sampleName}.gvcf
     # https://github.com/freebayes/freebayes/pull/549
     freebayes -p 1 \
-              -f ${ref} \
+              -f reference.fasta \
               -F 0.2 \
               -C 1 \
               --pooled-continuous \
@@ -236,7 +213,7 @@ process callConsensusFreebayes {
 
     # normalize variant records into canonical VCF representation
     for v in "variants" "consensus"; do
-        bcftools norm -f ${ref} ${sampleName}.\$v.vcf > ${sampleName}.\$v.norm.vcf
+        bcftools norm -f reference.fasta ${sampleName}.\$v.vcf > ${sampleName}.\$v.norm.vcf
     done
 
     # split the consensus sites file into a set that should be IUPAC codes and all other bases, using the ConsensusTag in the VCF
@@ -247,10 +224,10 @@ process callConsensusFreebayes {
     done
 
     # apply ambiguous variants first using IUPAC codes. this variant set cannot contain indels or the subsequent step will break
-    bcftools consensus -s - -f ${ref} -I ${sampleName}.ambiguous.norm.vcf.gz > ${sampleName}.ambiguous.fa
+    bcftools consensus -s - -f reference.fasta -I ${sampleName}.ambiguous.norm.vcf.gz > ${sampleName}.ambiguous.fa
 
     # Get viral contig name from reference
-    CTG_NAME=\$(head -n1 ${ref} | sed 's/>//')
+    CTG_NAME=\$(head -n1 reference.fasta | sed 's/>//')
 
     # apply remaninng variants, including indels
     bcftools consensus -s - -f ${sampleName}.ambiguous.fa -m ${sampleName}.mask.txt ${sampleName}.fixed.norm.vcf.gz | sed s/\$CTG_NAME/${sampleName}/ > ${sampleName}.consensus.fa
@@ -274,7 +251,7 @@ process alignConsensusToReference {
     publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.consensus.aln.fa", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(consensus), path(reference)
+    tuple val(sampleName), path(consensus), path(scheme)
 
     output:
     tuple val(sampleName), path("${sampleName}.consensus.aln.fa")
@@ -288,7 +265,7 @@ process alignConsensusToReference {
       --keeplength \
       --add \
       ${consensus} \
-      ${reference} \
+      reference.fasta \
       > ${sampleName}.with_ref.multi_line.alignment.fa
     awk '${awk_string}' ${sampleName}.with_ref.multi_line.alignment.fa > ${sampleName}.with_ref.single_line.alignment.fa
     tail -n 2 ${sampleName}.with_ref.single_line.alignment.fa > ${sampleName}.consensus.aln.fa
@@ -310,7 +287,7 @@ process annotateVariantsVCF {
     publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.variants.norm.consequence.{vcf,tsv}", mode: 'copy'
 
     input:
-    tuple val(sampleName), path(vcf), path(ref), path(gff)
+    tuple val(sampleName), path(vcf), path(scheme), path(gff)
 
     output:
     tuple val(sampleName), path("${sampleName}.variants.norm.consequence.vcf"), emit: vcf
@@ -318,7 +295,7 @@ process annotateVariantsVCF {
 
     script:
     """
-        bcftools csq -f ${ref} -g ${gff} ${vcf} -Ov -o ${sampleName}.variants.norm.consequence.vcf
-        bcftools csq -f ${ref} -g ${gff} ${vcf} -Ot -o ${sampleName}.variants.norm.consequence.tsv
+        bcftools csq -f reference.fasta -g ${gff} ${vcf} -Ov -o ${sampleName}.variants.norm.consequence.vcf
+        bcftools csq -f reference.fasta -g ${gff} ${vcf} -Ot -o ${sampleName}.variants.norm.consequence.tsv
         """
 }

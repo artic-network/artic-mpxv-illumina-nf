@@ -3,7 +3,7 @@
 nextflow.enable.dsl = 2
 
 // import subworkflows
-include {mpxvIllumina} from './workflows/illuminaMpxv.nf'
+include {sequenceAnalysis} from './workflows/illuminaMpxv.nf'
 
 // entrypoint workflow
 WorkflowMain.initialise(workflow, params, log)
@@ -16,6 +16,6 @@ workflow {
           .set{ ch_filePairs }
 
   main:
-    mpxvIllumina(ch_filePairs)
+    sequenceAnalysis(ch_filePairs)
      
 }
