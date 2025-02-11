@@ -6,3 +6,4 @@ work
 test_output
 test_input
 .DS_Store
+.vscode

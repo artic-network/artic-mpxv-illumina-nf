@@ -11,6 +11,8 @@ include { readMapping }                from '../modules/illumina.nf'
 include { callConsensusFreebayes }     from '../modules/illumina.nf'
 include { annotateVariantsVCF }        from '../modules/illumina.nf'
 include { alignConsensusToReference }  from '../modules/illumina.nf'
+include { fetchScheme }                from '../modules/illumina.nf'
+include { fetchScheme as fetchScheme_free } from '../modules/illumina.nf'
 
 include { makeQCCSV }         from '../modules/qc.nf'
 
@@ -27,49 +29,17 @@ workflow prepareReferenceFiles {
   // Scheme selection logic grabbed from epi2melabs/wf-artic, thanks ONT!
   if (!params.custom_scheme){
 
-    schemes = file(projectDir.resolve("./data/primer-schemes/**bed"), type: 'file', maxdepth: 10)
+    if (!params.freetext_scheme_name) {
+      fetchScheme(params.scheme_name)
 
-    valid_scheme_versions = []
+      reference = fetchScheme.out.reference
+      primers = fetchScheme.out.primers
+    } else {
+      fetchScheme_free(params.freetext_scheme_name)
 
-    log.info """
-    ------------------------------------
-    Available Primer Schemes:
-    ------------------------------------
-    """
-    log.info """  Name\t\tVersion"""
-    for (scheme in schemes){
-      main = scheme.toString().split("primer-schemes/")[1]
-      name = main.split("/")[0]
-      version = """${main.split("/")[1]}/${main.split("/")[2]}"""
-      valid_scheme_versions.add(version)
-      log.info """${c_green}  ${name}\t${version}\t${c_reset}"""
+      reference = fetchScheme_free.out.reference
+      primers = fetchScheme_free.out.primers
     }
-
-    log.info """
-    ------------------------------------
-    """
-
-    if (params.list_schemes) {
-      exit 1
-    }
-
-    if (!valid_scheme_versions.any { it == params.scheme_version}) {
-        println("`--scheme_version` should be one of: $valid_scheme_versions, for `--scheme_name`: $params.scheme_name")
-        exit 1
-    }
- 
-    scheme_dir_name = "primer-schemes"
-    schemes = """./data/${scheme_dir_name}/${params.scheme_name}"""
-    scheme_dir = file(projectDir.resolve(schemes), type:'file', checkIfExists:true)
-
-    primers_path = """./data/${scheme_dir_name}/${params.scheme_name}/${params.scheme_version}/primer.bed"""
-    primers = file(projectDir.resolve(primers_path), type:'file', checkIfExists:true)
-
-    reference_path = """./data/${scheme_dir_name}/${params.scheme_name}/${params.scheme_version}/reference.fasta"""
-    reference = file(projectDir.resolve(reference_path),type:'file', checkIfExists:true)
-
-    params._scheme_version = params.scheme_version
-    params._scheme_name = params.scheme_name
 
   } else {
     //custom scheme path defined

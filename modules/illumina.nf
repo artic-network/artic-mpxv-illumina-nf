@@ -18,6 +18,24 @@ process fetchHostileReference {
     """
 }
 
+process fetchScheme {
+
+    label 'process_low'
+
+    container 'community.wave.seqera.io/library/biopython_seqtk_clint:ba02674ac918df72'
+
+    conda 'bioconda::biopython=1.79 bioconda::seqtk=r93 bioconda::clint=0.5.1'
+
+    output:
+    path "primer_scheme/primer.bed", emit: bed
+    path "primer_scheme/primer.fasta", emit: ref
+
+    script:
+    """
+    get_scheme.py --scheme-directory ${params.store_dir}/primerschemes --scheme-name ${params.scheme}
+    """
+}
+
 process readTrimming {
     /**
     * Trims paired fastq using trim_galore (https://github.com/FelixKrueger/TrimGalore)
@@ -33,7 +51,9 @@ process readTrimming {
 
     conda 'bioconda::trim-galore=0.6.10'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
+    errorStrategy { task.exitStatus == 255 ? "ignore" : "terminate" }
+
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse)
@@ -57,7 +77,7 @@ process performHostFilter {
 
     conda 'bioconda::hostile=1.1.0'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.clean_*.fastq.gz", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.clean_*.fastq.gz", mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse)
@@ -83,8 +103,8 @@ process align_trim {
 
     conda 'bioconda::pysam=0.22.1 bioconda::samtools=1.12 conda-forge::numpy=2.1.1 conda-forge::pandas=2.2.2'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.primertrimmed.rg.sorted.bam*", mode: 'copy'
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.amplicon_depths.tsv", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.primertrimmed.rg.sorted.bam*", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.amplicon_depths.tsv", mode: 'copy'
 
     input:
     tuple val(sampleName), path(bam), path(bam_index)
@@ -97,13 +117,15 @@ process align_trim {
     script:
     if (!params.skip_normalize_depth) {
         normalise_string = "--normalise ${params.normalizationTargetDepth}"
-    } else {
+    }
+    else {
         normalise_string = ""
     }
 
     if (params.discard_incorrect_primer_pairs) {
         pp_string = "--discard-incorrect-primer-pairs"
-    } else {
+    }
+    else {
         pp_string = ""
     }
 
@@ -126,7 +148,7 @@ process indexReference {
     conda 'bioconda::bwa=0.7.18'
 
     input:
-    path(ref)
+    path ref
 
     output:
     path "${ref}.*"
@@ -153,7 +175,7 @@ process readMapping {
 
     conda 'bioconda::bwa=0.7.18 bioconda::samtools=1.12'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.sorted{.bam,.bam.bai}", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.sorted{.bam,.bam.bai}", mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse), path(ref)
@@ -180,8 +202,8 @@ process callConsensusFreebayes {
 
     conda 'bioconda::freebayes=1.3.6 bioconda::bcftools=1.20 bioconda::pysam=0.22.1 bioconda::tabix=1.11'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.consensus.fa", mode: 'copy'
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.variants.norm.vcf", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.consensus.fa", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.variants.norm.vcf", mode: 'copy'
 
     input:
     tuple val(sampleName), path(bam), path(bam_index), path(ref)
@@ -249,7 +271,7 @@ process alignConsensusToReference {
 
     conda 'bioconda::mafft=7.526'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.consensus.aln.fa", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.consensus.aln.fa", mode: 'copy'
 
     input:
     tuple val(sampleName), path(consensus), path(reference)
@@ -285,17 +307,17 @@ process annotateVariantsVCF {
 
     conda 'bioconda::bcftools=1.20'
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "${sampleName}.variants.norm.consequence.{vcf,tsv}", mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: "${sampleName}.variants.norm.consequence.{vcf,tsv}", mode: 'copy'
 
     input:
-        tuple val(sampleName), path(vcf), path(ref), path(gff)
+    tuple val(sampleName), path(vcf), path(ref), path(gff)
 
     output:
-        tuple val(sampleName), path("${sampleName}.variants.norm.consequence.vcf"), emit: vcf
-        tuple val(sampleName), path("${sampleName}.variants.norm.consequence.tsv"), emit: tsv
+    tuple val(sampleName), path("${sampleName}.variants.norm.consequence.vcf"), emit: vcf
+    tuple val(sampleName), path("${sampleName}.variants.norm.consequence.tsv"), emit: tsv
 
     script:
-        """
+    """
         bcftools csq -f ${ref} -g ${gff} ${vcf} -Ov -o ${sampleName}.variants.norm.consequence.vcf
         bcftools csq -f ${ref} -g ${gff} ${vcf} -Ot -o ${sampleName}.variants.norm.consequence.tsv
         """

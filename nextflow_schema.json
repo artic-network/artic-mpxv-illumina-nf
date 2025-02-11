@@ -23,7 +23,9 @@
           "help_text": "Directory containing the input FASTQ files"
         }
       },
-      "required": ["directory"]
+      "required": [
+        "directory"
+      ]
     },
     "primer_scheme_selection": {
       "title": "Primer Scheme Selection",
@@ -33,24 +35,22 @@
       "properties": {
         "scheme_name": {
           "type": "string",
-          "default": "MPXV",
-          "description": "Primer scheme name.",
-          "help_text": "This should be set to `MPXV`"
-        },
-        "scheme_version": {
-          "type": "string",
-          "default": "yale-mpox/v1.0.0-cladeI",
+          "default": "artic-inrb-mpox/2500/v1.0.0",
           "description": "Primer scheme version.",
-          "help_text": "Version of the primer scheme to use, `yale-mpox/v1.0.0-cladeI` and `yale-mpox/v1.0.0-cladeII` are the same scheme but use separate reference fastas.",
+          "help_text": "Version of the primer scheme to use as described in the https://github.com/quick-lab/primerschemes/ repository.",
           "enum": [
-            "yale-mpox/v1.0.0-cladeI",
-            "yale-mpox/v1.0.0-cladeII",
-            "rigshospitalet/v1.0.0",
-            "artic-mpox/v1.1.1-cladeI",
-            "artic-mpox/v1.1.1-cladeII",
-            "bccdc-mpox/v2.3.0-cladeI",
-            "bccdc-mpox/v2.3.0-cladeII"
+            "artic-inrb-mpox/2500/v1.0.0",
+            "artic-inrb-mpox/400/v1.0.0",
+            "yale-mpox/2000/v1.0.0-cladei",
+            "yale-mpox/2000/v1.0.0-cladeii",
+            "bccdc-mpox/2500/v2.3.0"
           ]
+        },
+        "freetext_scheme_name": {
+          "type": "string",
+          "title": "Custom scheme",
+          "description": "Custom primer scheme name.",
+          "help_text": "If you wish to fetch a primer scheme from the primerschemes repository not listed above please enter it here, it must be in the format `scheme_name/scheme_length/version` as it appears in the https://github.com/quick-lab/primerschemes/ repository."
         },
         "custom_scheme": {
           "type": "string",
@@ -87,7 +87,11 @@
           "help_text": "Prefix for output files, Sequencing run name is a good choice e.g DDMMYY_MACHINEID_RUN_FLOWCELLID."
         }
       },
-      "required": ["outdir", "prefix", "store_dir"]
+      "required": [
+        "outdir",
+        "prefix",
+        "store_dir"
+      ]
     },
     "squirrel_options": {
       "title": "Squirrel Options",
@@ -131,7 +135,9 @@
           "help_text": ""
         }
       },
-      "required": ["clade"],
+      "required": [
+        "clade"
+      ],
       "fa_icon": "fas fa-address-card",
       "help_text": ""
     },
