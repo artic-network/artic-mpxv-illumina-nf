@@ -2,9 +2,9 @@ process squirrelAlignmentAndQC {
 
     label "process_low"
 
-    container "docker.io/articnetworkorg/squirrel:1.0.10"
+    container "docker.io/articnetworkorg/squirrel@sha256:6311a61f667fa288b7ede67e88f4b7451e31f8b1da3ac61c5d1c8f303e253591"
 
-    conda "bioconda::squirrel=1.0.10"
+    conda "bioconda::squirrel=1.0.12"
 
     publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: "squirrel/**", mode: 'copy', saveAs: {  fn -> fn.replace("squirrel/", "")}
 

@@ -116,6 +116,7 @@ workflow sequenceAnalysis {
       } else {
             refs_ch = channel.fromPath("${projectDir}/test_data/empty.fasta", checkIfExists:true)
       }
+      
       if (!params.skip_squirrel) {
         squirrelAlignmentAndQC(consensus, refs_ch)
       }

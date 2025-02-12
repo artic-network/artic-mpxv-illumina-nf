@@ -11,12 +11,13 @@ process fetchHostileReference {
 
     script:
     """
-    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
+    export HOSTILE_CACHE_DIR='${params.store_dir}/hostile'
     hostile fetch --aligner bowtie2
 
     touch hostile.ok
     """
 }
+
 
 process fetchScheme {
 
@@ -54,9 +55,9 @@ process readTrimming {
 
     conda 'bioconda::trim-galore=0.6.10'
 
-    errorStrategy { task.exitStatus == 255 ? "ignore" : "terminate" }
+    errorStrategy {task.exitStatus == 255 ? "ignore" : "terminate"}
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse)
@@ -91,7 +92,7 @@ process performHostFilter {
 
     script:
     """
-    export HOSTILE_CACHE_DIR=${params.store_dir}/hostile/
+    export HOSTILE_CACHE_DIR='${params.store_dir}/hostile/'
     hostile clean --fastq1 ${forward} --fastq2 ${reverse} --out-dir . --threads ${task.cpus}
     """
 }
