@@ -35,28 +35,22 @@
       "properties": {
         "scheme_name": {
           "type": "string",
-          "default": "MPXV",
-          "description": "Primer scheme name.",
-          "help_text": "This should be set to `MPXV`"
-        },
-        "scheme_version": {
-          "type": "string",
-          "default": "artic-inrb-mpox/v1.0.0-cladeia",
+          "default": "artic-inrb-mpox/2500/v1.0.0",
           "description": "Primer scheme version.",
-          "help_text": "Version of the primer scheme to use, `yale-mpox/v1.0.0-cladeI` and `yale-mpox/v1.0.0-cladeII` are the same scheme but use separate reference fastas.",
+          "help_text": "Version of the primer scheme to use as described in the https://github.com/quick-lab/primerschemes/ repository.",
           "enum": [
-            "artic-inrb-mpox/v1.0.0-cladeia",
-            "artic-inrb-mpox/v1.0.0-cladeib",
-            "artic-inrb-mpox/v1.0.0-cladeiia",
-            "artic-inrb-mpox/v1.0.0-cladeiib",
-            "yale-mpox/v1.0.0-cladeI",
-            "yale-mpox/v1.0.0-cladeII",
-            "rigshospitalet/v1.0.0",
-            "artic-mpox/v1.1.1-cladeI",
-            "artic-mpox/v1.1.1-cladeII",
-            "bccdc-mpox/v2.3.0-cladeI",
-            "bccdc-mpox/v2.3.0-cladeII"
+            "artic-inrb-mpox/2500/v1.0.0",
+            "artic-inrb-mpox/400/v1.0.0",
+            "yale-mpox/2000/v1.0.0-cladei",
+            "yale-mpox/2000/v1.0.0-cladeii",
+            "bccdc-mpox/2500/v2.3.0"
           ]
+        },
+        "freetext_scheme_name": {
+          "type": "string",
+          "title": "Custom scheme",
+          "description": "Custom primer scheme name.",
+          "help_text": "If you wish to fetch a primer scheme from the primerschemes repository not listed above please enter it here, it must be in the format `scheme_name/scheme_length/version` as it appears in the https://github.com/quick-lab/primerschemes/ repository."
         },
         "custom_scheme": {
           "type": "string",
@@ -184,11 +178,6 @@
           "title": "Skip host filtering",
           "default": false,
           "description": "Skip host filtering if you are not concerned about human contamination in your dataset."
-        },
-        "list_schemes": {
-          "type": "boolean",
-          "default": false,
-          "description": "List primer schemes and exit without running analysis."
         },
         "align_consensus": {
           "type": "boolean",
