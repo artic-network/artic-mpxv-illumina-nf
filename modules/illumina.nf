@@ -6,12 +6,15 @@ process fetchHostileReference {
 
     conda 'bioconda::hostile=1.1.0'
 
+    input:
+    path store_dir
+
     output:
     path "hostile.ok"
 
     script:
     """
-    export HOSTILE_CACHE_DIR='${params.store_dir}/hostile'
+    export HOSTILE_CACHE_DIR='${store_dir}/hostile'
     hostile fetch --aligner bowtie2
 
     touch hostile.ok
@@ -55,9 +58,9 @@ process readTrimming {
 
     conda 'bioconda::trim-galore=0.6.10'
 
-    errorStrategy {task.exitStatus == 255 ? "ignore" : "terminate"}
+    errorStrategy { task.exitStatus == 255 ? "ignore" : "terminate" }
 
-    publishDir "${params.outdir}/${task.process.replaceAll(":","_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
+    publishDir "${params.outdir}/${task.process.replaceAll(":", "_")}", pattern: '*_val_{1,2}.fq.gz', mode: 'copy'
 
     input:
     tuple val(sampleName), path(forward), path(reverse)

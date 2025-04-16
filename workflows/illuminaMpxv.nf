@@ -69,7 +69,7 @@ workflow sequenceAnalysis {
   main:
 
   if (!params.skip_host_filter) {
-    fetchHostileReference()
+    fetchHostileReference(params.store_dir)
     performHostFilter(ch_filePairs, fetchHostileReference.out)
     ch_filtered_reads = performHostFilter.out
   }
